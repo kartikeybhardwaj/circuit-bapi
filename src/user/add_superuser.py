@@ -30,24 +30,18 @@ class AddSuperuserResource:
                 userExists = dbu.countDocuments(requestObj["username"])
                 if userExists:
                     # if user exists
-                    print("user exists")
                     dbu.updateUserToSuperuser()
-                    print("user made superuser")
                 else:
                     # if user doesn't exist
-                    print("user doesn't exist")
                     dbc = DBCounter()
                     index = dbc.getNewUserIndex()
-                    print("new user index fetched")
                     dbc.incrementUserIndex()
-                    print("user index updated")
                     dbu.insertSuperuser(
                         index,
                         requestObj["username"],
                         # TODO: display name of this user will come here
                         req.params["kartoon-fapi-incoming"]["displayname"]
                     )
-                    print("super user inserted")
                 responseObj["responseId"] = 211
             else:
                 responseObj["responseId"] = 110
