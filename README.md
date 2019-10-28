@@ -31,3 +31,11 @@ db.createUser({
 ```
 mongo "mongodb://kart:oon@127.0.0.1:27017/circuit"
 ```
+
+## RESPONSE IDs
+
+```
+211 - All Success
+111 - Unknown Failure
+110 - Validation Failure, check message
+```
