@@ -17,6 +17,7 @@ class Middleware:
         """
         # TODO: username and displayname should come from fapi
         req.params["kartoon-fapi-incoming"] = {}
+        req.params["kartoon-fapi-incoming"]["_id"] = "5db6b2c04a302636a79dce4a"
         req.params["kartoon-fapi-incoming"]["username"] = "kartikey.bhardwaj"
         req.params["kartoon-fapi-incoming"]["displayname"] = "Kartikey Bhardwaj"
         req.params["kartoon-fapi-incoming"]["employeeid"] = "772780"
