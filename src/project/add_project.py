@@ -2,6 +2,7 @@ from bson.objectid import ObjectId
 import datetime
 import re
 
+from database.counter.counter import DBCounter
 from database.project.project import DBProject
 
 class AddProjectResource:
@@ -40,11 +41,21 @@ class AddProjectResource:
         try:
             requestObj = req.media
             # TODO: validate separately and set response message separately - follow if else ladder
-            if (self.validateTitle(requestObj.get("title", "")) and
-                self.validateVisibility(requestObj.get("visibility", "")) and
-                self.validateProjectMetaId(requestObj.get("projectMetaId", ""))):
+            if not self.validateTitle(requestObj.get("title", "")):
+                responseObj["responseId"] = 110
+                responseObj["message"] = "Invalid title"
+            elif not self.validateVisibility(requestObj.get("visibility", "")):
+                responseObj["responseId"] = 110
+                responseObj["message"] = "Invalid visibility"
+            elif not self.validateProjectMetaId(requestObj.get("projectMetaId", "")):
+                responseObj["responseId"] = 110
+                responseObj["message"] = "Invalid meta"
+            else:
+                dbc = DBCounter()
+                index = dbc.getNewProjectIndex()
+                dbc.incrementProjectIndex()
                 projectToBeAdded = {}
-                projectToBeAdded["index"] = None
+                projectToBeAdded["index"] = index
                 projectToBeAdded["title"] = requestObj["title"]
                 projectToBeAdded["isActive"] = True
                 projectToBeAdded["description"] = requestObj.get("description", "")
@@ -54,8 +65,7 @@ class AddProjectResource:
                 projectToBeAdded["projectMetaId"] = requestObj["projectMetaId"]
                 projectToBeAdded["fields"] = requestObj["fields"]
                 projectToBeAdded["meta"] = {
-                    # TODO: this should be an ObjectId
-                    "addedBy": req.params["kartoon-fapi-incoming"]["username"],
+                    "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
                     "addedOn": datetime.datetime.utcnow(),
                     "lastUpdatedBy": None,
                     "lastUpdatedOn": None
@@ -63,9 +73,6 @@ class AddProjectResource:
                 dbpr = DBProject()
                 responseObj["data"]["_id"] = dbpr.insertProject(projectToBeAdded)
                 responseObj["responseId"] = 211
-            else:
-                responseObj["responseId"] = 110
-                responseObj["message"] = ""
         except Exception as ex:
             responseObj["message"] = str(ex)
         resp.media = responseObj
