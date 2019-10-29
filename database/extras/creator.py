@@ -22,7 +22,7 @@ class DBCreator:
             self.__db.create_collection("users")
             counter = [{
                 "for": "locations",
-                "count": 0
+                "count": 2
             }, {
                 "for": "metaMilestones",
                 "count": 0
@@ -99,6 +99,28 @@ class DBCreator:
                 }
             }]
             self.__db.roles.insert_many(roles)
+            locations = [{
+                "index": 1,
+                "name": "Mysuru, India",
+                "isActive": True,
+                "meta": {
+                    "addedBy": None,
+                    "addedOn": None,
+                    "lastUpdatedBy": None,
+                    "lastUpdatedOn": None
+                }
+            }, {
+                "index": 2,
+                "name": "Bengaluru, India",
+                "isActive": True,
+                "meta": {
+                    "addedBy": None,
+                    "addedOn": None,
+                    "lastUpdatedBy": None,
+                    "lastUpdatedOn": None
+                }
+            }]
+            self.__db.locations.insert_many(locations)
             success = True
         except Exception as ex:
             print(ex)
