@@ -4,6 +4,7 @@
 ### pip3 install falcon-cors
 ### pip3 install pymongo
 ### pip3 install pyjwt
+### pip3 install jsonschema
 ### pip3 install gunicorn
 
 ### gunicorn -b localhost:3200 app:api
@@ -38,4 +39,5 @@ mongo "mongodb://kart:oon@127.0.0.1:27017/circuit"
 211 - All Success
 111 - Unknown Failure
 110 - Validation Failure, check message
+109 - Unauthorized access
 ```
