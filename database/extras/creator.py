@@ -14,7 +14,7 @@ class DBCreator:
             self.__db.create_collection("locations")
             self.__db.create_collection("metaMilestones")
             self.__db.create_collection("metaProjects")
-            self.__db.create_collection("metaPulse")
+            self.__db.create_collection("metaPulses")
             self.__db.create_collection("milestones")
             self.__db.create_collection("projects")
             self.__db.create_collection("pulses")
@@ -30,7 +30,7 @@ class DBCreator:
                 "for": "metaProjects",
                 "count": 0
             }, {
-                "for": "metaPulse",
+                "for": "metaPulses",
                 "count": 0
             },{
                 "for": "milestones",

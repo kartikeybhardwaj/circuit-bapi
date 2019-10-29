@@ -12,7 +12,7 @@ class GetMyProjectsResource:
         try:
             dbu = DBUser()
             # check if user is superuser
-            if dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["username"]):
+            if dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"]):
                 # if yes, fetch all projects
                 print("user is superuser")
                 dbpr = DBProject()

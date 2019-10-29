@@ -19,7 +19,7 @@ class AddProjectResource:
             success = True
         return success
 
-    def validateProjectMetaId(self, projectMetaId: str | None, fields: dict) -> bool:
+    def validateProjectMetaId(self, projectMetaId: "str | None", fields: dict) -> bool:
         success = False
         if projectMetaId and isinstance(projectMetaId, str):
             try:
@@ -40,7 +40,6 @@ class AddProjectResource:
         }
         try:
             requestObj = req.media
-            # TODO: validate separately and set response message separately - follow if else ladder
             if not self.validateTitle(requestObj.get("title", "")):
                 responseObj["responseId"] = 110
                 responseObj["message"] = "Invalid title"

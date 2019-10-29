@@ -1,7 +1,6 @@
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-from typing import List
 import json
 import datetime
 
@@ -18,7 +17,7 @@ class DBProject:
         })
         return json.loads(dumps(result))
 
-    def getProjectsByIds(self, _ids: List[ObjectId]) -> dict:
+    def getProjectsByIds(self, _ids: "list of ObjectId") -> dict:
         result = self.__db.projects.find({
             "_id": {
                 "$in": _ids
@@ -26,6 +25,10 @@ class DBProject:
             "isActive": True
         })
         return json.loads(dumps(result))
+
+    def insertMetaProject(self, metaProject: dict) -> str:
+        _id = self.__db.metaProjects.insert_one(metaProject).inserted_id
+        return str(_id)
 
     def insertProject(self, project: dict) -> str:
         _id = self.__db.projects.insert_one(project).inserted_id
