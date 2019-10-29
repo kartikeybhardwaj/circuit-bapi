@@ -13,70 +13,126 @@ class DBCounter:
 
     def getNewUserIndex(self) -> int:
         return self.__db.counter.find_one({
-                "for": "users"
-            })["count"] + 1
+            "for": "users"
+        })["count"] + 1
 
     def incrementUserIndex(self) -> bool:
         return self.__db.counter.update_one({
-                "for": "users"
-            }, {
-                "$inc": {
-                    "count": 1
-                }
-            }).modified_count == 1
+            "for": "users"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
 
-    def getNewProjectMetaIndex(self) -> int:
+    def getNewLocationIndex(self) -> int:
         return self.__db.counter.find_one({
-                "for": "metaProjects"
-            })["count"] + 1
+            "for": "locations"
+        })["count"] + 1
 
-    def incrementProjectMetaIndex(self) -> bool:
+    def incrementLocationIndex(self) -> bool:
         return self.__db.counter.update_one({
-                "for": "metaProjects"
-            }, {
-                "$inc": {
-                    "count": 1
-                }
-            }).modified_count == 1
+            "for": "locations"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
 
-    def getNewMilestoneMetaIndex(self) -> int:
+    def getNewRoleIndex(self) -> int:
         return self.__db.counter.find_one({
-                "for": "metaMilestones"
-            })["count"] + 1
+            "for": "roles"
+        })["count"] + 1
 
-    def incrementMilestoneMetaIndex(self) -> bool:
+    def incrementRoleIndex(self) -> bool:
         return self.__db.counter.update_one({
-                "for": "metaMilestones"
-            }, {
-                "$inc": {
-                    "count": 1
-                }
-            }).modified_count == 1
+            "for": "roles"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
 
-    def getNewPulseMetaIndex(self) -> int:
+    def getNewMetaProjectIndex(self) -> int:
         return self.__db.counter.find_one({
-                "for": "metaPulses"
-            })["count"] + 1
+            "for": "metaProjects"
+        })["count"] + 1
 
-    def incrementPulseMetaIndex(self) -> bool:
+    def incrementMetaProjectIndex(self) -> bool:
         return self.__db.counter.update_one({
-                "for": "metaPulses"
-            }, {
-                "$inc": {
-                    "count": 1
-                }
-            }).modified_count == 1
+            "for": "metaProjects"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
+
+    def getNewMetaMilestoneIndex(self) -> int:
+        return self.__db.counter.find_one({
+            "for": "metaMilestones"
+        })["count"] + 1
+
+    def incrementMetaMilestoneIndex(self) -> bool:
+        return self.__db.counter.update_one({
+            "for": "metaMilestones"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
+
+    def getNewMetaPulseIndex(self) -> int:
+        return self.__db.counter.find_one({
+            "for": "metaPulses"
+        })["count"] + 1
+
+    def incrementMetaPulseIndex(self) -> bool:
+        return self.__db.counter.update_one({
+            "for": "metaPulses"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
 
     def getNewProjectIndex(self) -> int:
         return self.__db.counter.find_one({
-                "for": "projects"
-            })["count"] + 1
+            "for": "projects"
+        })["count"] + 1
 
     def incrementProjectIndex(self) -> bool:
         return self.__db.counter.update_one({
-                "for": "projects"
-            }, {
-                "$inc": {
-                    "count": 1
-                }
-            }).modified_count == 1
+            "for": "projects"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
+
+    def getNewMilestoneIndex(self) -> int:
+        return self.__db.counter.find_one({
+            "for": "milestones"
+        })["count"] + 1
+
+    def incrementMilestoneIndex(self) -> bool:
+        return self.__db.counter.update_one({
+            "for": "milestones"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
+
+    def getNewPulseIndex(self) -> int:
+        return self.__db.counter.find_one({
+            "for": "pulses"
+        })["count"] + 1
+
+    def incrementPulseIndex(self) -> bool:
+        return self.__db.counter.update_one({
+            "for": "pulses"
+        }, {
+            "$inc": {
+                "count": 1
+            }
+        }).modified_count == 1
