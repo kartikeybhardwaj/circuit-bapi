@@ -43,12 +43,62 @@ class DBCreator:
                 "count": 0
             }, {
                 "for": "roles",
-                "count": 0
+                "count": 3
             }, {
                 "for": "users",
                 "count": 0
             }]
             self.__db.counter.insert_many(counter)
+            roles = [{
+                "index": 1,
+                "name": "Project Manager",
+                "isActive": True,
+                "description": "",
+                "canModifyUsersRole": True,
+                "canModifyLocations": True,
+                "canModifyProjects": True,
+                "canModifyMilestones": True,
+                "canModifyPulses": True,
+                "meta": {
+                    "addedBy": None,
+                    "addedOn": None,
+                    "lastUpdatedBy": None,
+                    "lastUpdatedOn": None
+                }
+            }, {
+                "index": 2,
+                "name": "Project Member",
+                "isActive": True,
+                "description": "",
+                "canModifyUsersRole": False,
+                "canModifyLocations": True,
+                "canModifyProjects": False,
+                "canModifyMilestones": True,
+                "canModifyPulses": True,
+                "meta": {
+                    "addedBy": None,
+                    "addedOn": None,
+                    "lastUpdatedBy": None,
+                    "lastUpdatedOn": None
+                }
+            }, {
+                "index": 3,
+                "name": "That One Guy",
+                "isActive": True,
+                "description": "",
+                "canModifyUsersRole": False,
+                "canModifyLocations": False,
+                "canModifyProjects": False,
+                "canModifyMilestones": False,
+                "canModifyPulses": False,
+                "meta": {
+                    "addedBy": None,
+                    "addedOn": None,
+                    "lastUpdatedBy": None,
+                    "lastUpdatedOn": None
+                }
+            }]
+            self.__db.roles.insert_many(roles)
             success = True
         except Exception as ex:
             print(ex)
