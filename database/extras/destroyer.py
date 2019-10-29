@@ -14,7 +14,7 @@ class DBDestroyer:
             self.__db.drop_collection("locations")
             self.__db.drop_collection("metaMilestones")
             self.__db.drop_collection("metaProjects")
-            self.__db.drop_collection("metaPulse")
+            self.__db.drop_collection("metaPulses")
             self.__db.drop_collection("milestones")
             self.__db.drop_collection("projects")
             self.__db.drop_collection("pulses")
