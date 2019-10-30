@@ -17,7 +17,14 @@ class DBRole:
         })
         return json.loads(dumps(result))
 
-    def getRolesByIds(self, _ids: "list of ObjectId") -> dict:
+    def countDocumentsById(self, _id: str) -> int:
+        return self.__db.roles.count_documents({
+            "_id": ObjectId(_id),
+            "isActive": True
+        })
+
+    def getRolesByIds(self, _ids: "list of str") -> dict:
+        _ids = list(map(ObjectId, _ids))
         result = self.__db.roles.find({
             "_id": {
                 "$in": _ids
