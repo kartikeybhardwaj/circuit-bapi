@@ -26,6 +26,16 @@ class DBProject:
         })
         return json.loads(dumps(result))
 
+    def getFieldsById(self, _id: str) -> "list of dict":
+        result = self.__db.metaProjects.find({
+            "_id": ObjectId(_id),
+            "isActive": True
+        }, {
+            "_id": 0,
+            "fields": 1
+        })
+        return json.loads(dumps(result))[0]["fields"]
+
     def insertMetaProject(self, metaProject: dict) -> str:
         _id = self.__db.metaProjects.insert_one(metaProject).inserted_id
         return str(_id)
