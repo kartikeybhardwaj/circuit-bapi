@@ -40,4 +40,5 @@ mongo "mongodb://kart:oon@127.0.0.1:27017/circuit"
 111 - Unknown Failure
 110 - Validation Failure, check message
 109 - Unauthorized access
+108 - Already exists
 ```
