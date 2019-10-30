@@ -20,6 +20,29 @@ class AddUserResource:
             message = ex.message
         return [success, message]
 
+    def addUser(self, username: str, displayname: str, addedBy: str) -> str:
+        dbc = DBCounter()
+        index = dbc.getNewUserIndex()
+        dbc.incrementUserIndex()
+        dataToBeInserted = {}
+        dataToBeInserted["index"] = index
+        dataToBeInserted["username"] = username
+        dataToBeInserted["displayname"] = displayname
+        dataToBeInserted["isSuperuser"] = False
+        dataToBeInserted["baseLocation"] = None
+        dataToBeInserted["otherLocations"] = []
+        dataToBeInserted["nonAvailability"] = []
+        dataToBeInserted["access"] = {
+            "projects": []
+        }
+        dataToBeInserted["meta"] = {
+            "addedBy": addedBy,
+            "addedOn": datetime.datetime.utcnow(),
+            "lastSeen": None
+        }
+        dbu = DBUser()
+        return dbu.insertUser(dataToBeInserted)
+
     """
     REQUEST:
         "username": str
@@ -46,27 +69,11 @@ class AddUserResource:
                     responseObj["message"] = "Already exists"
                 elif userCount == 0:
                     # if user doesn't exist
-                    dbc = DBCounter()
-                    index = dbc.getNewUserIndex()
-                    dbc.incrementUserIndex()
-                    dataToBeInserted = {}
-                    dataToBeInserted["index"] = index
-                    dataToBeInserted["username"] = requestObj["username"]
-                    dataToBeInserted["displayname"] = requestObj["displayname"]
-                    dataToBeInserted["isSuperuser"] = False
-                    dataToBeInserted["baseLocation"] = None
-                    dataToBeInserted["otherLocations"] = []
-                    dataToBeInserted["nonAvailability"] = []
-                    dataToBeInserted["access"] = {
-                        "projects": []
-                    }
-                    dataToBeInserted["meta"] = {
-                        "addedBy": None,
-                        "addedOn": datetime.datetime.utcnow(),
-                        "lastSeen": None
-                    }
-                    responseObj["data"]["_id"] = dbu.insertUser(dataToBeInserted)
+                    responseObj["data"]["_id"] = self.addUser(
+                        requestObj["username"],
+                        requestObj["displayname"],
+                        req.params["kartoon-fapi-incoming"]["_id"])
                     responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = ex.message
+                responseObj["message"] = str(ex)
         resp.media = responseObj
