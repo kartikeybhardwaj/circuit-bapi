@@ -66,5 +66,5 @@ class AddLocationsResource:
                     responseObj["data"]["_ids"] = dbl.insertLocations(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = ex.message
+                responseObj["message"] = str(ex)
         resp.media = responseObj

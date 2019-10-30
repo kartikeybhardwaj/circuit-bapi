@@ -70,5 +70,5 @@ class AddMetaMilestoneResource:
                     responseObj["data"]["_id"] = dbm.insertMetaMilestone(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = ex.message
+                responseObj["message"] = str(ex)
         resp.media = responseObj

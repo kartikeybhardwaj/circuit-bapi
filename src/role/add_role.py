@@ -73,5 +73,5 @@ class AddRoleResource:
                     responseObj["data"]["_id"] = dbr.insertRole(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = ex.message
+                responseObj["message"] = str(ex)
         resp.media = responseObj

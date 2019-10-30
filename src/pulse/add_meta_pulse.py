@@ -70,5 +70,5 @@ class AddMetaPulseResource:
                     responseObj["data"]["_id"] = dbpu.insertMetaPulse(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = ex.message
+                responseObj["message"] = str(ex)
         resp.media = responseObj

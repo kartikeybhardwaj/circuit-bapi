@@ -67,5 +67,5 @@ class AddSuperuserResource:
                     responseObj["data"]["_id"] = dbu.insertUser(dataToBeInserted)
                 responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = ex.message
+                responseObj["message"] = str(ex)
         resp.media = responseObj
