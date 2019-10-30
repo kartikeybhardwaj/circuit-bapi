@@ -18,6 +18,14 @@ class DBUser:
             "username": username
         })
 
+    def getIdByUsername(self, username: str) -> str:
+        _id = self.__db.users.find_one({
+            "username": username
+        }, {
+            "_id": 1
+        })
+        return str(_id["_id"]) if _id else None
+
     def checkIfUserIsSuperuser(self, _id: str) -> bool:
         return self.__db.users.count_documents({
             "_id": ObjectId(_id),
@@ -28,7 +36,7 @@ class DBUser:
         result = self.__db.users.find({
             "username": username
         }, {
-            "_id": -1,
+            "_id": 0,
             "access.projectId": 1
         })
         return json.loads(dumps(result))
@@ -54,3 +62,15 @@ class DBUser:
     def insertUser(self, user: dict) -> str:
         _id = self.__db.users.insert_one(user).inserted_id
         return str(_id)
+
+    def insertAccessProjectId(self, userId: str, projectId: str) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId)
+        }, {
+            "$push": {
+                "access.projects": {
+                    "projectId": ObjectId(projectId),
+                    "milestones": []
+                }
+            }
+        }).modified_count == 1
