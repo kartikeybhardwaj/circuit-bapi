@@ -1,7 +1,6 @@
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-from typing import List
 import json
 import datetime
 
@@ -25,7 +24,7 @@ class DBUser:
             "isSuperuser": True
         }) == 1
 
-    def getAccessibleProjects(self, username: str) -> List[ObjectId]:
+    def getAccessibleProjects(self, username: str) -> list:
         result = self.__db.users.find({
             "username": username
         }, {
@@ -36,29 +35,22 @@ class DBUser:
 
     def updateUserToSuperuser(self, username: str) -> bool:
         return self.__db.users.update_one({
-                "username": username
-            }, {
-                "$set": {
-                    "isSuperuser": True
-                }
-            }).modified_count == 1
+            "username": username
+        }, {
+            "$set": {
+                "isSuperuser": True
+            }
+        }).modified_count == 1
 
-    def insertSuperuser(self, index, username, displayname) -> dict:
-        _id = self.__db.users.insert_one({
-                "index": index,
-                "username": username,
-                "displayname": displayname,
-                "isSuperuser": True,
-                "baseLocation": None,
-                "otherLocations": [],
-                "nonAvailability": [],
-                "access": {
-                    "projects": []
-                },
-                "meta": {
-                    "addedBy": None,
-                    "addedOn": datetime.datetime.utcnow(),
-                    "lastSeen": None
-                }
-            }).inserted_id
+    def updateSuperuserToUser(self, username: str) -> bool:
+        return self.__db.users.update_one({
+            "username": username
+        }, {
+            "$set": {
+                "isSuperuser": False
+            }
+        }).modified_count == 1
+
+    def insertUser(self, user: dict) -> str:
+        _id = self.__db.users.insert_one(user).inserted_id
         return str(_id)

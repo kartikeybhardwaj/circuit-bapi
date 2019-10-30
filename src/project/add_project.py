@@ -53,25 +53,25 @@ class AddProjectResource:
                 dbc = DBCounter()
                 index = dbc.getNewProjectIndex()
                 dbc.incrementProjectIndex()
-                projectToBeAdded = {}
-                projectToBeAdded["index"] = index
-                projectToBeAdded["title"] = requestObj["title"]
-                projectToBeAdded["isActive"] = True
-                projectToBeAdded["description"] = requestObj.get("description", "")
-                projectToBeAdded["milestonesList"] = []
-                projectToBeAdded["visibility"] = requestObj["visibility"]
-                projectToBeAdded["members"] = []
-                projectToBeAdded["projectMetaId"] = requestObj["projectMetaId"]
-                projectToBeAdded["fields"] = requestObj["fields"]
-                projectToBeAdded["meta"] = {
+                dataToBeInserted = {}
+                dataToBeInserted["index"] = index
+                dataToBeInserted["title"] = requestObj["title"]
+                dataToBeInserted["isActive"] = True
+                dataToBeInserted["description"] = requestObj.get("description", "")
+                dataToBeInserted["milestonesList"] = []
+                dataToBeInserted["visibility"] = requestObj["visibility"]
+                dataToBeInserted["members"] = []
+                dataToBeInserted["projectMetaId"] = requestObj["projectMetaId"]
+                dataToBeInserted["fields"] = requestObj["fields"]
+                dataToBeInserted["meta"] = {
                     "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
                     "addedOn": datetime.datetime.utcnow(),
                     "lastUpdatedBy": None,
                     "lastUpdatedOn": None
                 }
                 dbpr = DBProject()
-                responseObj["data"]["_id"] = dbpr.insertProject(projectToBeAdded)
+                responseObj["data"]["_id"] = dbpr.insertProject(dataToBeInserted)
                 responseObj["responseId"] = 211
         except Exception as ex:
-            responseObj["message"] = str(ex)
+            responseObj["message"] = ex.message
         resp.media = responseObj

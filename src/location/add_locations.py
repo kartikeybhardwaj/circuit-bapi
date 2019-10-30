@@ -21,6 +21,10 @@ class AddLocationsResource:
             message = ex.message
         return [success, message]
 
+    """
+    REQUEST:
+        "names": list of str
+    """
     def on_post(self, req, resp):
         requestObj = req.media
         responseObj = {
@@ -41,7 +45,7 @@ class AddLocationsResource:
                 else:
                     dbc = DBCounter()
                     dbl = DBLocation()
-                    locations = []
+                    dataToBeInserted = []
                     extraData = {
                         "isActive": True,
                         "meta": {
@@ -52,13 +56,14 @@ class AddLocationsResource:
                         }
                     }
                     for i in range(len(requestObj["names"])):
-                        locations.append({})
+                        # TODO: check if this location name already exist
+                        dataToBeInserted.append({})
                         index = dbc.getNewLocationIndex()
                         dbc.incrementLocationIndex()
-                        locations[i]["index"] = index
-                        locations[i]["name"] = requestObj["names"][i]
-                        locations[i].update(extraData)
-                    responseObj["data"]["_ids"] = dbl.insertLocations(locations)
+                        dataToBeInserted[i]["index"] = index
+                        dataToBeInserted[i]["name"] = requestObj["names"][i]
+                        dataToBeInserted[i].update(extraData)
+                    responseObj["data"]["_ids"] = dbl.insertLocations(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
                 responseObj["message"] = ex.message

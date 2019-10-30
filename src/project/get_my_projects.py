@@ -27,5 +27,5 @@ class GetMyProjectsResource:
                 # print(accessibleProjectIds)
             responseObj["responseId"] = 211
         except Exception as ex:
-            responseObj["message"] = str(ex)
+            responseObj["message"] = ex.message
         resp.media = responseObj

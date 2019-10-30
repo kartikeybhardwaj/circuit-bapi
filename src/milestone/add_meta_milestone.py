@@ -27,6 +27,12 @@ class AddMetaMilestoneResource:
                 message = ex2.message
         return [success, message]
 
+    """
+    REQUEST:
+        "title": str
+        "description": str
+        "fields": dict
+    """
     def on_post(self, req, resp):
         requestObj = req.media
         responseObj = {
@@ -48,17 +54,21 @@ class AddMetaMilestoneResource:
                     dbc = DBCounter()
                     index = dbc.getNewMetaMilestoneIndex()
                     dbc.incrementMetaMilestoneIndex()
-                    requestObj["index"] = index
-                    requestObj["isActive"] = True
-                    requestObj["meta"] = {
+                    dataToBeInserted = {}
+                    dataToBeInserted["index"] = index
+                    dataToBeInserted["isActive"] = True
+                    dataToBeInserted["title"] = requestObj["title"]
+                    dataToBeInserted["description"] = requestObj["description"]
+                    dataToBeInserted["fields"] = requestObj["fields"]
+                    dataToBeInserted["meta"] = {
                         "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
                         "addedOn": datetime.datetime.utcnow(),
                         "lastUpdatedBy": None,
                         "lastUpdatedOn": None
                     }
                     dbm = DBMilestone()
-                    responseObj["data"]["_id"] = dbm.insertMetaMilestone(requestObj)
+                    responseObj["data"]["_id"] = dbm.insertMetaMilestone(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = str(ex)
+                responseObj["message"] = ex.message
         resp.media = responseObj

@@ -27,7 +27,7 @@ class DBMilestone:
         return json.loads(dumps(result))
 
     def insertMetaMilestone(self, metaMilestone: dict) -> str:
-        _id = self.__db.metaMilestone.insert_one(metaMilestone).inserted_id
+        _id = self.__db.metaMilestones.insert_one(metaMilestone).inserted_id
         return str(_id)
 
     def insertMilestone(self, milestone: dict) -> str:

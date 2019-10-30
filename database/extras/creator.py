@@ -51,8 +51,8 @@ class DBCreator:
             self.__db.counter.insert_many(counter)
             roles = [{
                 "index": 1,
-                "name": "Project Manager",
                 "isActive": True,
+                "title": "Project Manager",
                 "description": "",
                 "canModifyUsersRole": True,
                 "canModifyLocations": True,
@@ -67,8 +67,8 @@ class DBCreator:
                 }
             }, {
                 "index": 2,
-                "name": "Project Member",
                 "isActive": True,
+                "title": "Project Member",
                 "description": "",
                 "canModifyUsersRole": False,
                 "canModifyLocations": True,
@@ -83,8 +83,8 @@ class DBCreator:
                 }
             }, {
                 "index": 3,
-                "name": "That One Guy",
                 "isActive": True,
+                "title": "That One Guy",
                 "description": "",
                 "canModifyUsersRole": False,
                 "canModifyLocations": False,

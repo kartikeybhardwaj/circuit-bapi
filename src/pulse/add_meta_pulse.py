@@ -27,6 +27,12 @@ class AddMetaPulseResource:
                 message = ex2.message
         return [success, message]
 
+    """
+    REQUEST:
+        "title": str
+        "description": str
+        "fields": dict
+    """
     def on_post(self, req, resp):
         requestObj = req.media
         responseObj = {
@@ -48,17 +54,21 @@ class AddMetaPulseResource:
                     dbc = DBCounter()
                     index = dbc.getNewMetaPulseIndex()
                     dbc.incrementMetaPulseIndex()
-                    requestObj["index"] = index
-                    requestObj["isActive"] = True
-                    requestObj["meta"] = {
+                    dataToBeInserted = {}
+                    dataToBeInserted["index"] = index
+                    dataToBeInserted["isActive"] = True
+                    dataToBeInserted["title"] = requestObj["title"]
+                    dataToBeInserted["description"] = requestObj["description"]
+                    dataToBeInserted["fields"] = requestObj["fields"]
+                    dataToBeInserted["meta"] = {
                         "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
                         "addedOn": datetime.datetime.utcnow(),
                         "lastUpdatedBy": None,
                         "lastUpdatedOn": None
                     }
                     dbpu = DBPulse()
-                    responseObj["data"]["_id"] = dbpu.insertMetaPulse(requestObj)
+                    responseObj["data"]["_id"] = dbpu.insertMetaPulse(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
-                responseObj["message"] = str(ex)
+                responseObj["message"] = ex.message
         resp.media = responseObj

@@ -21,6 +21,16 @@ class AddRoleResource:
             message = ex.message
         return [success, message]
 
+    """
+    REQUEST:
+        "title": str
+        "description": str
+        "canModifyUsersRole": bool
+        "canModifyLocations": bool
+        "canModifyProjects": bool
+        "canModifyMilestones": bool
+        "canModifyPulses": bool
+    """
     def on_post(self, req, resp):
         requestObj = req.media
         responseObj = {
@@ -39,19 +49,28 @@ class AddRoleResource:
                     responseObj["responseId"] = 109
                     responseObj["message"] = "Unauthorized access"
                 else:
+                    # TODO: check if role title already exists
                     dbc = DBCounter()
                     index = dbc.getNewRoleIndex()
                     dbc.incrementRoleIndex()
-                    requestObj["index"] = index
-                    requestObj["isActive"] = True
-                    requestObj["meta"] = {
+                    dataToBeInserted = {}
+                    dataToBeInserted["index"] = index
+                    dataToBeInserted["isActive"] = True
+                    dataToBeInserted["title"] = requestObj["title"]
+                    dataToBeInserted["description"] = requestObj["description"]
+                    dataToBeInserted["canModifyUsersRole"] = requestObj["canModifyUsersRole"]
+                    dataToBeInserted["canModifyLocations"] = requestObj["canModifyLocations"]
+                    dataToBeInserted["canModifyProjects"] = requestObj["canModifyProjects"]
+                    dataToBeInserted["canModifyMilestones"] = requestObj["canModifyMilestones"]
+                    dataToBeInserted["canModifyPulses"] = requestObj["canModifyPulses"]
+                    dataToBeInserted["meta"] = {
                         "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
                         "addedOn": datetime.datetime.utcnow(),
                         "lastUpdatedBy": None,
                         "lastUpdatedOn": None
                     }
                     dbr = DBRole()
-                    responseObj["data"]["_id"] = dbr.insertRole(requestObj)
+                    responseObj["data"]["_id"] = dbr.insertRole(dataToBeInserted)
                     responseObj["responseId"] = 211
             except Exception as ex:
                 responseObj["message"] = ex.message
