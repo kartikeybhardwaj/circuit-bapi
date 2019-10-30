@@ -9,6 +9,8 @@ from src.user.add_superuser import AddSuperuserResource
 from src.project.add_meta_project import AddMetaProjectResource
 from src.milestone.add_meta_milestone import AddMetaMilestoneResource
 from src.pulse.add_meta_pulse import AddMetaPulseResource
+from src.role.add_role import AddRoleResource
+from src.location.add_locations import AddLocationsResource
 from src.project.add_project import AddProjectResource
 from src.project.get_my_projects import GetMyProjectsResource
 
@@ -28,5 +30,7 @@ api.add_route("/add-superuser", AddSuperuserResource())
 api.add_route("/add-meta-project", AddMetaProjectResource())
 api.add_route("/add-meta-milestone", AddMetaMilestoneResource())
 api.add_route("/add-meta-pulse", AddMetaPulseResource())
+api.add_route("/add-role", AddRoleResource())
+api.add_route("/add-locations", AddLocationsResource())
 api.add_route("/add-project", AddProjectResource())
 api.add_route("/get-my-projects", GetMyProjectsResource())
