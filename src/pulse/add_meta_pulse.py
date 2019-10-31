@@ -61,7 +61,7 @@ class AddMetaPulseResource:
                     dataToBeInserted["description"] = requestObj["description"]
                     dataToBeInserted["fields"] = requestObj["fields"]
                     dataToBeInserted["meta"] = {
-                        "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
+                        "addedBy": ObjectId(req.params["kartoon-fapi-incoming"]["_id"]),
                         "addedOn": datetime.datetime.utcnow(),
                         "lastUpdatedBy": None,
                         "lastUpdatedOn": None
