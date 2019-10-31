@@ -21,6 +21,13 @@ class AddRoleResource:
             message = ex.message
         return [success, message]
 
+    def alreadyHasThisRole(self, title: str) -> bool:
+        success = False
+        dbr = DBRole()
+        if dbr.countDocumentsByTitle(title) > 0:
+            success = True
+        return success
+
     """
     REQUEST:
         "title": str
@@ -48,8 +55,10 @@ class AddRoleResource:
                 if not dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"]):
                     responseObj["responseId"] = 109
                     responseObj["message"] = "Unauthorized access"
+                elif self.alreadyHasThisRole(requestObj["title"]):
+                    responseObj["responseId"] = 108
+                    responseObj["message"] = "Already exists"
                 else:
-                    # TODO: check if role title already exists
                     dbc = DBCounter()
                     index = dbc.getNewRoleIndex()
                     dbc.incrementRoleIndex()
@@ -64,7 +73,7 @@ class AddRoleResource:
                     dataToBeInserted["canModifyMilestones"] = requestObj["canModifyMilestones"]
                     dataToBeInserted["canModifyPulses"] = requestObj["canModifyPulses"]
                     dataToBeInserted["meta"] = {
-                        "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
+                        "addedBy": ObjectId(req.params["kartoon-fapi-incoming"]["_id"]),
                         "addedOn": datetime.datetime.utcnow(),
                         "lastUpdatedBy": None,
                         "lastUpdatedOn": None

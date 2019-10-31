@@ -49,21 +49,32 @@ class AddLocationsResource:
                     extraData = {
                         "isActive": True,
                         "meta": {
-                            "addedBy": req.params["kartoon-fapi-incoming"]["_id"],
+                            "addedBy": ObjectId(req.params["kartoon-fapi-incoming"]["_id"]),
                             "addedOn": datetime.datetime.utcnow(),
                             "lastUpdatedBy": None,
                             "lastUpdatedOn": None
                         }
                     }
+                    insertedIds = []
+                    alreadyExists = []
                     for i in range(len(requestObj["names"])):
-                        # TODO: check if this location name already exist
-                        dataToBeInserted.append({})
-                        index = dbc.getNewLocationIndex()
-                        dbc.incrementLocationIndex()
-                        dataToBeInserted[i]["index"] = index
-                        dataToBeInserted[i]["name"] = requestObj["names"][i]
-                        dataToBeInserted[i].update(extraData)
-                    responseObj["data"]["_ids"] = dbl.insertLocations(dataToBeInserted)
+                        existingLocId = dbl.getLocationIdByName(requestObj["names"][i])
+                        if not existingLocId:
+                            dataToBeInserted.append({})
+                            index = dbc.getNewLocationIndex()
+                            dbc.incrementLocationIndex()
+                            dataToBeInserted[i]["index"] = index
+                            dataToBeInserted[i]["name"] = requestObj["names"][i]
+                            dataToBeInserted[i].update(extraData)
+                        else:
+                            alreadyExists.append({
+                                "_id": existingLocId,
+                                "name": requestObj["names"][i]
+                            })
+                    if len(dataToBeInserted) > 0:
+                        insertedIds = dbl.insertLocations(dataToBeInserted)
+                    responseObj["data"]["_ids"] = insertedIds
+                    responseObj["data"]["alreadyExists"] = alreadyExists
                     responseObj["responseId"] = 211
             except Exception as ex:
                 responseObj["message"] = str(ex)
