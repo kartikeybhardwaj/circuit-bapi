@@ -11,6 +11,11 @@ class DBPulse:
         self.__client = MongoClient('mongodb://kart:oon@127.0.0.1:27017/circuit')
         self.__db = self.__client.circuit
 
+    def countDocumentsById(self, projectId: str) -> int:
+        return self.__db.pulses.count_documents({
+            "_id": ObjectId(projectId)
+        })
+
     def getAllPulses(self) -> dict:
         result = self.__db.pulses.find({
             "isActive": True
@@ -26,6 +31,15 @@ class DBPulse:
             "isActive": True
         })
         return json.loads(dumps(result))
+
+    def getFieldsById(self, pulseId: str) -> "list of dict":
+        return self.__db.metaPulses.find_one({
+            "_id": ObjectId(pulseId),
+            "isActive": True
+        }, {
+            "_id": 0,
+            "fields": 1
+        })["fields"]
 
     def insertMetaPulse(self, metaPulse: dict) -> str:
         _id = self.__db.metaPulses.insert_one(metaPulse).inserted_id

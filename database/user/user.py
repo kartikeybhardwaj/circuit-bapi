@@ -74,3 +74,37 @@ class DBUser:
                 }
             }
         }).modified_count == 1
+
+    def canAccessMilestone(self, userId: str, projectId: str, milestoneId: str) -> bool:
+        # TODO: please verify this query
+        return self.__db.users.count_documents({
+            "_id": ObjectId(userId),
+            "access.projects.projectId": ObjectId(projectId),
+            "access.projects.milestones.milestoneId": ObjectId(milestoneId)
+        }) == 1
+
+    def insertAccessToMilestone(self, userId: str, projectId: str, milestoneId: str) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId),
+            "access.projects.projectId": ObjectId(projectId)
+        }, {
+            "$push": {
+                "access.projects.$.milestones": {
+                    "milestoneId": ObjectId(milestoneId),
+                    "pulses": []
+                }
+            }
+        }).modified_count == 1
+
+    def insertAccessToPulse(self, userId: str, projectId: str, milestoneId: str, pulseId: str) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId)
+        }, {
+            "$push": {
+                "access.projects.$[i].milestones.$[j].pulses": ObjectId(pulseId)
+            }
+        }, array_filters = [{
+                "i.projectId": ObjectId(projectId)
+        }, {
+                "j.milestoneId": ObjectId(milestoneId)
+        }]).modified_count == 1

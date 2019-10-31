@@ -49,6 +49,16 @@ class DBRole:
         })
         return True if result else False
 
+    def hasPulseCreationAccess(self, roleId: str) -> bool:
+        result = self.__db.roles.find({
+            "_id": ObjectId(roleId),
+            "isActive": True,
+            "canModifyPulses": True
+        }, {
+            "_id": 1
+        })
+        return True if result else False
+
     def insertRole(self, role: dict) -> str:
         _id = self.__db.roles.insert_one(role).inserted_id
         return str(_id)

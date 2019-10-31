@@ -11,6 +11,11 @@ class DBMilestone:
         self.__client = MongoClient('mongodb://kart:oon@127.0.0.1:27017/circuit')
         self.__db = self.__client.circuit
 
+    def countDocumentsById(self, projectId: str) -> int:
+        return self.__db.milestones.count_documents({
+            "_id": ObjectId(projectId)
+        })
+
     def getAllMilestones(self) -> dict:
         result = self.__db.milestones.find({
             "isActive": True
@@ -28,14 +33,19 @@ class DBMilestone:
         return json.loads(dumps(result))
 
     def getFieldsById(self, milestoneId: str) -> "list of dict":
-        result = self.__db.metaMilestones.find({
+        return self.__db.metaMilestones.find_one({
             "_id": ObjectId(milestoneId),
             "isActive": True
         }, {
             "_id": 0,
             "fields": 1
-        })
-        return json.loads(dumps(result))[0]["fields"]
+        })["fields"]
+
+    def hasThisLinkedProjectId(self, projectId: str, milestoneId: str) -> bool:
+        return self.__db.milestones.count_documents({
+            "_id": ObjectId(milestoneId),
+            "linkedProjectId": ObjectId(projectId)
+        }) == 1
 
     def insertMetaMilestone(self, metaMilestone: dict) -> str:
         _id = self.__db.metaMilestones.insert_one(metaMilestone).inserted_id
@@ -44,3 +54,12 @@ class DBMilestone:
     def insertMilestone(self, milestone: dict) -> str:
         _id = self.__db.milestones.insert_one(milestone).inserted_id
         return str(_id)
+
+    def insertPulseIdToMilestone(self, milestoneId: str, pulseId: str) -> bool:
+        return self.__db.milestones.update_one({
+            "_id": ObjectId(milestoneId)
+        }, {
+            "$push": {
+                "pulsesList": ObjectId(pulseId)
+            }
+        }).modified_count == 1
