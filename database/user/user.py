@@ -26,9 +26,9 @@ class DBUser:
         })
         return str(_id["_id"]) if _id else None
 
-    def checkIfUserIsSuperuser(self, _id: str) -> bool:
+    def checkIfUserIsSuperuser(self, userId: str) -> bool:
         return self.__db.users.count_documents({
-            "_id": ObjectId(_id),
+            "_id": ObjectId(userId),
             "isSuperuser": True
         }) == 1
 

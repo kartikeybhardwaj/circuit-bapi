@@ -17,10 +17,11 @@ class DBPulse:
         })
         return json.loads(dumps(result))
 
-    def getPulsesByIds(self, _ids: "list of ObjectId") -> dict:
+    def getPulsesByIds(self, pulseIds: "list of ObjectId") -> dict:
+        pulseIds = list(map(ObjectId, pulseIds))
         result = self.__db.pulses.find({
             "_id": {
-                "$in": _ids
+                "$in": pulseIds
             },
             "isActive": True
         })

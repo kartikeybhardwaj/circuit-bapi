@@ -11,10 +11,23 @@ class DBLocation:
         self.__client = MongoClient('mongodb://kart:oon@127.0.0.1:27017/circuit')
         self.__db = self.__client.circuit
 
-    def countDocuments(self, name: str) -> int:
+    def countDocumentsByName(self, name: str) -> int:
         return self.__db.locations.count_documents({
             "name": name
         })
+
+    def countDocumentsById(self, locationId: str) -> int:
+        return self.__db.locations.count_documents({
+            "_id": ObjectId(locationId)
+        })
+
+    def getLocationIdByName(self, name: str) -> str:
+        _id = self.__db.locations.find_one({
+            "name": name
+        }, {
+            "_id": 1
+        })
+        return str(_id["_id"]) if _id else None
 
     def getAllLocations(self) -> dict:
         result = self.__db.locations.find({
@@ -22,10 +35,10 @@ class DBLocation:
         })
         return json.loads(dumps(result))
 
-    def getLocationsByIds(self, _ids: "list of ObjectId") -> dict:
+    def getLocationsByIds(self, locationIds: "list of ObjectId") -> dict:
         result = self.__db.locations.find({
             "_id": {
-                "$in": _ids
+                "$in": locationIds
             },
             "isActive": True
         })

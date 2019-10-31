@@ -17,21 +17,37 @@ class DBRole:
         })
         return json.loads(dumps(result))
 
-    def countDocumentsById(self, _id: str) -> int:
+    def countDocumentsByTitle(self, roleTitle: str) -> int:
         return self.__db.roles.count_documents({
-            "_id": ObjectId(_id),
+            "title": roleTitle,
             "isActive": True
         })
 
-    def getRolesByIds(self, _ids: "list of str") -> dict:
-        _ids = list(map(ObjectId, _ids))
+    def countDocumentsById(self, roleId: str) -> int:
+        return self.__db.roles.count_documents({
+            "_id": ObjectId(roleId),
+            "isActive": True
+        })
+
+    def getRolesByIds(self, roleIds: "list of str") -> dict:
+        roleIds = list(map(ObjectId, roleIds))
         result = self.__db.roles.find({
             "_id": {
-                "$in": _ids
+                "$in": roleIds
             },
             "isActive": True
         })
         return json.loads(dumps(result))
+
+    def hasMilestoneCreationAccess(self, roleId: str) -> bool:
+        result = self.__db.roles.find({
+            "_id": ObjectId(roleId),
+            "isActive": True,
+            "canModifyMilestones": True
+        }, {
+            "_id": 1
+        })
+        return True if result else False
 
     def insertRole(self, role: dict) -> str:
         _id = self.__db.roles.insert_one(role).inserted_id
