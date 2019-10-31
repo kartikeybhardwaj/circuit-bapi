@@ -39,16 +39,17 @@ class AddMilestoneResource:
     def validateMilestoneMetaId(self, milestoneMetaId: "str or None", fields: "list of dict") -> [bool, str]:
         success = True
         message = ""
-        try:
-            ObjectId(milestoneMetaId)
-        except Exception as ex:
+        if (not milestoneMetaId and len(fields) > 0) or (milestoneMetaId and len(fields) == 0):
             success = False
             message = "Invalid milestoneMetaId"
-        if success:
-            if (not milestoneMetaId and len(fields) > 0) or (milestoneMetaId and len(fields) == 0):
-                success = False
-                message = "Invalid milestoneMetaId"
-            else:
+        else:
+            if milestoneMetaId:
+                try:
+                    ObjectId(milestoneMetaId)
+                except Exception as ex:
+                    success = False
+                    message = "Invalid milestoneMetaId"
+            if success:
                 fieldsDict = {}
                 for field in fields:
                     fieldsDict[field["key"]] = field["value"]

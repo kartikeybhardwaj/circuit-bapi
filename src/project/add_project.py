@@ -44,16 +44,17 @@ class AddProjectResource:
     def validateProjectMetaId(self, projectMetaId: "str or None", fields: "list of dict") -> [bool, str]:
         success = True
         message = ""
-        try:
-            ObjectId(projectMetaId)
-        except Exception as ex:
+        if (not projectMetaId and len(fields) > 0) or (projectMetaId and len(fields) == 0):
             success = False
             message = "Invalid projectMetaId"
-        if success:
-            if (not projectMetaId and len(fields) > 0) or (projectMetaId and len(fields) == 0):
-                success = False
-                message = "Invalid projectMetaId"
-            else:
+        else:
+            if projectMetaId:
+                try:
+                    ObjectId(projectMetaId)
+                except Exception as ex:
+                    success = False
+                    message = "Invalid projectMetaId"
+            if success:
                 fieldsDict = {}
                 for field in fields:
                     fieldsDict[field["key"]] = field["value"]
