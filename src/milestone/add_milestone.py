@@ -86,16 +86,11 @@ class AddMilestoneResource:
                 message = "Invalid linkedProjectId"
         return [success, message]
 
-    def verifyMilestoneCreationAccess(self, linkedProjectId: str, userId: str) -> [bool, str]:
-        success = True
-        message = ""
+    def verifyMilestoneCreationAccess(self, linkedProjectId: str, userId: str) -> bool:
         dbpr = DBProject()
         roleId = dbpr.getRoleIdOfUserInProject(linkedProjectId, userId)
         dbr = DBRole()
-        success = dbr.hasMilestoneCreationAccess(roleId)
-        if not success:
-            message = "Unauthorized access"
-        return [success, message]
+        return dbr.hasMilestoneCreationAccess(roleId)
 
     """
     REQUEST:
@@ -125,6 +120,9 @@ class AddMilestoneResource:
                 if not afterValidationLinkedProjectId[0]:
                     responseObj["responseId"] = 110
                     responseObj["message"] = afterValidationLinkedProjectId[1]
+                elif not self.verifyMilestoneCreationAccess(requestObj["linkedProjectId"], req.params["kartoon-fapi-incoming"]["_id"]):
+                    responseObj["responseId"] = 108
+                    responseObj["message"] = "Unauthorized access"
                 else:
                     afterValidationTimeline = self.validateTimeline(requestObj["timeline"])
                     if not afterValidationTimeline[0]:
@@ -148,13 +146,13 @@ class AddMilestoneResource:
                             dataToBeInserted["milestoneMetaId"] = ObjectId(requestObj["milestoneMetaId"])
                             dataToBeInserted["fields"] = requestObj["fields"]
                             dataToBeInserted["pulsesList"] = []
+                            dataToBeInserted["linkedProjectId"] = ObjectId(requestObj["linkedProjectId"])
                             dataToBeInserted["meta"] = {
                                 "addedBy": ObjectId(req.params["kartoon-fapi-incoming"]["_id"]),
                                 "addedOn": datetime.datetime.utcnow(),
                                 "lastUpdatedBy": None,
                                 "lastUpdatedOn": None
                             }
-                            dataToBeInserted["linkedProjectId"] = ObjectId(requestObj["linkedProjectId"])
                             dbm = DBMilestone()
                             milestoneId = dbm.insertMilestone(dataToBeInserted)
                             dbpr = DBProject()

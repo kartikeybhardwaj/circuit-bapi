@@ -72,6 +72,7 @@ validate_add_milestone_schema = {
     "required": [
         "title",
         "description",
+        "timeline",
         "milestoneMetaId",
         "fields",
         "linkedProjectId"
