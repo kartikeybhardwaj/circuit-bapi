@@ -2,21 +2,23 @@ import falcon
 from falcon_cors import CORS
 
 from middleware.middleware import Middleware
-from src.extras.status import StatusResource
-from src.extras.creator import CreatorResource
-from src.extras.destroyer import DestroyerResource
-from src.user.add_superuser import AddSuperuserResource
-from src.project.add_meta_project import AddMetaProjectResource
-from src.milestone.add_meta_milestone import AddMetaMilestoneResource
-from src.pulse.add_meta_pulse import AddMetaPulseResource
-from src.role.add_role import AddRoleResource
-from src.location.add_locations import AddLocationsResource
-from src.project.add_project import AddProjectResource
-from src.milestone.add_milestone import AddMilestoneResource
-from src.pulse.add_pulse import AddPulseResource
-from src.project.get_my_projects import GetMyProjectsResource
+from source.extras.status import StatusResource
+from source.extras.creator import CreatorResource
+from source.extras.destroyer import DestroyerResource
+from source.user.add_superuser import AddSuperuserResource
+from source.project.add_meta_project import AddMetaProjectResource
+from source.milestone.add_meta_milestone import AddMetaMilestoneResource
+from source.pulse.add_meta_pulse import AddMetaPulseResource
+from source.role.add_role import AddRoleResource
+from source.location.add_locations import AddLocationsResource
+from source.project.add_project import AddProjectResource
+from source.milestone.add_milestone import AddMilestoneResource
+from source.pulse.add_pulse import AddPulseResource
+from source.user.get_user import GetUserResource
+from source.project.get_projects import GetProjectsResource
 
 cors = CORS(allow_origins_list = ["http://localhost:4200"],
+            allow_credentials_all_origins = True,
             allow_all_headers = True,
             allow_all_methods = True)
 
@@ -37,4 +39,5 @@ api.add_route("/add-locations", AddLocationsResource())
 api.add_route("/add-project", AddProjectResource())
 api.add_route("/add-milestone", AddMilestoneResource())
 api.add_route("/add-pulse", AddPulseResource())
-api.add_route("/get-my-projects", GetMyProjectsResource())
+api.add_route("/get-user", GetUserResource())
+api.add_route("/get-projects", GetProjectsResource())
