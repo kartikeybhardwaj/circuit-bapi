@@ -41,6 +41,30 @@ class DBMilestone:
             "fields": 1
         })["fields"]
 
+    def getActiveMilesonteIdsByIds(self, milestoneIds: "list of str") -> "list of dict":
+        milestoneIds = list(map(ObjectId, milestoneIds))
+        result = self.__db.milestones.find({
+            "_id": {
+                "$in": milestoneIds
+            },
+            "isActive": True
+        }, {
+            "_id": 1
+        })
+        return json.loads(dumps(result))
+
+    def getTitlesMapByIds(self, milestoneIds: "list of str") -> "list of dict":
+        milestoneIds = list(map(ObjectId, milestoneIds))
+        result = self.__db.milestones.find({
+            "_id": {
+                "$in": milestoneIds
+            }
+        }, {
+            "_id": 1,
+            "title": 1
+        })
+        return json.loads(dumps(result))
+
     def hasThisLinkedProjectId(self, projectId: str, milestoneId: str) -> bool:
         return self.__db.milestones.count_documents({
             "_id": ObjectId(milestoneId),

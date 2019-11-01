@@ -47,6 +47,30 @@ class DBUser:
         })
         return json.loads(dumps(result))["access"]["projects"]
 
+    def getActiveUserIdsByIds(self, userIds: "list of str") -> "list of dict":
+        userIds = list(map(ObjectId, userIds))
+        result = self.__db.users.find({
+            "_id": {
+                "$in": userIds
+            },
+            "isActive": True
+        }, {
+            "_id": 1
+        })
+        return json.loads(dumps(result))
+
+    def getUsernamesMapByIds(self, userIds: "list of str") -> "list of dict":
+        userIds = list(map(ObjectId, userIds))
+        result = self.__db.users.find({
+            "_id": {
+                "$in": userIds
+            }
+        }, {
+            "_id": 1,
+            "username": 1
+        })
+        return json.loads(dumps(result))
+
     def updateUserToSuperuser(self, username: str) -> bool:
         return self.__db.users.update_one({
             "username": username

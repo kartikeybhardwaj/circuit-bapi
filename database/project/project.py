@@ -53,6 +53,18 @@ class DBProject:
         })
         return json.loads(dumps(result))
 
+    def getActiveProjectIdsByIds(self, projectIds: "list of str") -> "list of dict":
+        projectIds = list(map(ObjectId, projectIds))
+        result = self.__db.projects.find({
+            "_id": {
+                "$in": projectIds
+            },
+            "isActive": True
+        }, {
+            "_id": 1
+        })
+        return json.loads(dumps(result))
+
     def getFieldsById(self, projectId: str) -> "list of dict":
         return self.__db.metaProjects.find_one({
             "_id": ObjectId(projectId),
