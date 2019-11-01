@@ -16,9 +16,19 @@ class DBProject:
             "_id": ObjectId(projectId)
         })
 
-    def getAllProjects(self) -> dict:
+    def getAllProjectIds(self) -> dict:
         result = self.__db.projects.find({
             "isActive": True
+        }, {
+            "_id": 1
+        })
+        return json.loads(dumps(result))
+
+    def getPublicProjectIds(self) -> dict:
+        result = self.__db.projects.find({
+            "visibility": "public"
+        }, {
+            "_id": 1
         })
         return json.loads(dumps(result))
 
@@ -29,6 +39,17 @@ class DBProject:
                 "$in": projectIds
             },
             "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "milestonesList": 1,
+            "visibility": 1,
+            "members": 1,
+            "projectMetaId": 1,
+            "fields": 1,
+            "meta": 1
         })
         return json.loads(dumps(result))
 

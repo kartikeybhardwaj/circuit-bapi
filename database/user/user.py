@@ -18,6 +18,12 @@ class DBUser:
             "username": username
         })
 
+    def getUserByUsername(self, username: str) -> dict:
+        result = self.__db.users.find_one({
+            "username": username
+        })
+        return json.loads(dumps(result))
+
     def getIdByUsername(self, username: str) -> str:
         _id = self.__db.users.find_one({
             "username": username
@@ -32,14 +38,14 @@ class DBUser:
             "isSuperuser": True
         }) == 1
 
-    def getAccessibleProjects(self, username: str) -> list:
-        result = self.__db.users.find({
-            "username": username
+    def getAccessibleProjects(self, userId: str) -> list:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId)
         }, {
             "_id": 0,
-            "access.projectId": 1
+            "access.projects.projectId": 1
         })
-        return json.loads(dumps(result))
+        return json.loads(dumps(result))["access"]["projects"]
 
     def updateUserToSuperuser(self, username: str) -> bool:
         return self.__db.users.update_one({
@@ -56,6 +62,15 @@ class DBUser:
         }, {
             "$set": {
                 "isSuperuser": False
+            }
+        }).modified_count == 1
+
+    def updateLastSeen(self, userId: str) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId)
+        }, {
+            "$set": {
+                "meta.lastSeen": datetime.datetime.utcnow()
             }
         }).modified_count == 1
 
