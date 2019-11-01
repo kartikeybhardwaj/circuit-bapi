@@ -24,7 +24,7 @@ class AddProjectResource:
             message = ex.message
         return [success, message]
 
-    def validateMembers(self, members: "list of dict") -> [bool, str]:
+    def validateMembersRole(self, members: "list of dict") -> [bool, str]:
         success = True
         message = ""
         dbr = DBRole()
@@ -99,7 +99,7 @@ class AddProjectResource:
             responseObj["message"] = afterValidation[1]
         else:
             try:
-                afterValidationMembers = self.validateMembers(requestObj["members"])
+                afterValidationMembers = self.validateMembersRole(requestObj["members"])
                 afterValidationProjectMeta = self.validateProjectMetaId(requestObj["projectMetaId"], requestObj["fields"])
                 if not afterValidationMembers[0]:
                     responseObj["responseId"] = 110

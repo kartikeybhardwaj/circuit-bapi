@@ -50,6 +50,7 @@ class AddSuperuserResource:
                     dbc.incrementUserIndex()
                     dataToBeInserted = {}
                     dataToBeInserted["index"] = index
+                    dataToBeInserted["isActive"] = True
                     dataToBeInserted["username"] = requestObj["username"]
                     dataToBeInserted["displayname"] = requestObj["displayname"]
                     dataToBeInserted["isSuperuser"] = True

@@ -26,6 +26,7 @@ class AddUserResource:
         dbc.incrementUserIndex()
         dataToBeInserted = {}
         dataToBeInserted["index"] = index
+        dataToBeInserted["isActive"] = True
         dataToBeInserted["username"] = username
         dataToBeInserted["displayname"] = displayname
         dataToBeInserted["isSuperuser"] = False

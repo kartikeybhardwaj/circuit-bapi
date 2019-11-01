@@ -17,7 +17,7 @@ class Middleware:
         """
         # TODO: username and displayname should come from fapi
         req.params["kartoon-fapi-incoming"] = {}
-        req.params["kartoon-fapi-incoming"]["_id"] = "5dbc24cb03b2510ecd2f0c60"
+        req.params["kartoon-fapi-incoming"]["_id"] = "5dbc9f16078be5885dc22703"
         req.params["kartoon-fapi-incoming"]["username"] = "kartikey.bhardwaj"
         req.params["kartoon-fapi-incoming"]["displayname"] = "Kartikey Bhardwaj"
         req.params["kartoon-fapi-incoming"]["employeeid"] = "772780"
@@ -37,5 +37,5 @@ class Middleware:
                 the framework processed and routed the request;
                 otherwise False.
         """
-        if req.method != "OPTIONS":
+        if req.method == "POST":
             print("response:", resp.media)
