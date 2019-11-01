@@ -36,7 +36,7 @@ class AddUserResource:
             "projects": []
         }
         dataToBeInserted["meta"] = {
-            "addedBy": ObjectId(addedBy),
+            "addedBy": ObjectId(addedBy) if addedBy else None,
             "addedOn": datetime.datetime.utcnow(),
             "lastSeen": None
         }

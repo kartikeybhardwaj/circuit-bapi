@@ -10,7 +10,7 @@ from database.user.user import DBUser
 from database.role.role import DBRole
 from database.counter.counter import DBCounter
 from database.project.project import DBProject
-from src.user.add_user import AddUserResource
+from source.user.add_user import AddUserResource
 
 class AddProjectResource:
 
