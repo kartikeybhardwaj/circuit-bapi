@@ -17,6 +17,7 @@ from source.pulse.add_pulse import AddPulseResource
 from source.user.get_user import GetUserResource
 from source.role.get_roles import GetRolesResource
 from source.project.get_projects import GetProjectsResource
+from source.milestone.get_milestones import GetMilestonesResource
 
 cors = CORS(allow_origins_list = ["http://localhost:4200"],
             allow_credentials_all_origins = True,
@@ -43,3 +44,4 @@ api.add_route("/add-pulse", AddPulseResource())
 api.add_route("/get-user", GetUserResource())
 api.add_route("/get-roles", GetRolesResource())
 api.add_route("/get-projects", GetProjectsResource())
+api.add_route("/get-milestones", GetMilestonesResource())
