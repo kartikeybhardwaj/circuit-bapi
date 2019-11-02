@@ -83,16 +83,22 @@ class GetProjectsResource:
             idMap[titlesMap["_id"]["$oid"]] = titlesMap["title"]
         return idMap
     
-    def idMapForMemberIds(self, projects: "list of dict") -> dict:
+    def idMapForUserIds(self, projects: "list of dict") -> dict:
         idMap = {}
-        # 01. prepare allMemberIds
-        allMemberIds = []
+        # 01. prepare allUserIds
+        allUserIds = []
         for project in projects:
             for member in project["members"]:
-                allMemberIds.append(member["userId"]["$oid"])
-        # 02. get [{_id, username}, ..] from getUsernamesMapByIds
-        usernamesMapByIds = dbu.getUsernamesMapByIds(allMemberIds)
-        # 03. get username and map it to _id from usernamesMapByIds
+                allUserIds.append(member["userId"]["$oid"])
+            if project["meta"]["addedBy"]:
+                allUserIds.append(project["meta"]["addedBy"]["$oid"])
+            if project["meta"]["lastUpdatedBy"]:
+                allUserIds.append(project["meta"]["lastUpdatedBy"]["$oid"])
+        # 02. a user can exist in different projects, get the set of allUserIds
+        allUserIds = list(set(allUserIds))
+        # 03. get [{_id, username}, ..] from getUsernamesMapByIds
+        usernamesMapByIds = dbu.getUsernamesMapByIds(allUserIds)
+        # 04. get username and map it to _id from usernamesMapByIds
         for usernamesMap in usernamesMapByIds:
             idMap[usernamesMap["_id"]["$oid"]] = usernamesMap["username"]
         return idMap
@@ -125,8 +131,8 @@ class GetProjectsResource:
             idMap = self.idMapForProjectIds(projects)
             # 07. update idMap with idMapForMilestoneIds
             idMap.update(self.idMapForMilestoneIds(projects))
-            # 08. update idMap with idMapForMemberIds
-            idMap.update(self.idMapForMemberIds(projects))
+            # 08. update idMap with idMapForUserIds
+            idMap.update(self.idMapForUserIds(projects))
             # 09. attach projects in response
             responseObj["data"]["projects"] = projects
             # 10. attach idMap in response
