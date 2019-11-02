@@ -29,6 +29,17 @@ class DBMilestone:
                 "$in": milestoneIds
             },
             "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "timeline": 1,
+            "pulsesList": 1,
+            "milestoneMetaId": 1,
+            "fields": 1,
+            "linkedProjectId": 1,
+            "meta": 1
         })
         return json.loads(dumps(result))
 

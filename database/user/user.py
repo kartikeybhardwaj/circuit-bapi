@@ -35,15 +35,28 @@ class DBUser:
     def checkIfUserIsSuperuser(self, userId: str) -> bool:
         return self.__db.users.count_documents({
             "_id": ObjectId(userId),
+            "isActive": True,
             "isSuperuser": True
         }) == 1
 
     def getAccessibleProjects(self, userId: str) -> list:
         result = self.__db.users.find_one({
-            "_id": ObjectId(userId)
+            "_id": ObjectId(userId),
+            "isActive": True
         }, {
             "_id": 0,
             "access.projects.projectId": 1
+        })
+        return json.loads(dumps(result))["access"]["projects"]
+
+    def getAccessibleMilestonesInProject(self, userId: str, projectId: str) -> list:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "isActive": True,
+            "access.projects.projectId": ObjectId(projectId)
+        }, {
+            "_id": 0,
+            "access.projects.milestones.milestoneId": 1
         })
         return json.loads(dumps(result))["access"]["projects"]
 
@@ -73,7 +86,8 @@ class DBUser:
 
     def updateUserToSuperuser(self, username: str) -> bool:
         return self.__db.users.update_one({
-            "username": username
+            "username": username,
+            "isActive": True
         }, {
             "$set": {
                 "isSuperuser": True
@@ -82,7 +96,8 @@ class DBUser:
 
     def updateSuperuserToUser(self, username: str) -> bool:
         return self.__db.users.update_one({
-            "username": username
+            "username": username,
+            "isActive": True
         }, {
             "$set": {
                 "isSuperuser": False
@@ -91,7 +106,8 @@ class DBUser:
 
     def updateLastSeen(self, userId: str) -> bool:
         return self.__db.users.update_one({
-            "_id": ObjectId(userId)
+            "_id": ObjectId(userId),
+            "isActive": True
         }, {
             "$set": {
                 "meta.lastSeen": datetime.datetime.utcnow()
@@ -114,10 +130,18 @@ class DBUser:
             }
         }).modified_count == 1
 
-    def canAccessMilestone(self, userId: str, projectId: str, milestoneId: str) -> bool:
+    def hasProjectAccess(self, userId: str, projectId: str) -> bool:
+        return self.__db.users.count_documents({
+            "_id": ObjectId(userId),
+            "isActive": True,
+            "access.projects.projectId": ObjectId(projectId)
+        }) == 1
+
+    def hasMilestoneAccess(self, userId: str, projectId: str, milestoneId: str) -> bool:
         # TODO: please verify this query
         return self.__db.users.count_documents({
             "_id": ObjectId(userId),
+            "isActive": True,
             "access.projects.projectId": ObjectId(projectId),
             "access.projects.milestones.milestoneId": ObjectId(milestoneId)
         }) == 1

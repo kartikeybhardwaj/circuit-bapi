@@ -26,6 +26,7 @@ class DBProject:
 
     def getPublicProjectIds(self) -> dict:
         result = self.__db.projects.find({
+            "isActive": True,
             "visibility": "public"
         }, {
             "_id": 1
@@ -85,10 +86,56 @@ class DBProject:
         })
         return str(result["members"][0]["roleId"]) if result else None
 
-    def hasThisAssignee(self, projectId: str, assigneeId: str) -> bool:
+    def getAllMilestoneIds(self, projectId: str) -> "list of dict":
+        result = self.__db.projects.find_one({
+            "_id": ObjectId(projectId),
+            "isActive": True
+        }, {
+            "_id": 0,
+            "milestonesList": 1
+        })
+        return json.loads(dumps(result))["milestonesList"]
+
+    def isProjectActive(self, projectId: str) -> bool:
         return self.__db.projects.count_documents({
             "_id": ObjectId(projectId),
-            "members.userId": ObjectId(assigneeId)
+            "isActive": True
+        }) == 1
+
+    def isPubliclyVisible(self, projectId: str) -> bool:
+        return self.__db.projects.count_documents({
+            "_id": ObjectId(projectId),
+            "isActive": True,
+            "visibility": "public"
+        }) == 1
+
+    def isInternallyVisible(self, projectId: str) -> bool:
+        return self.__db.projects.count_documents({
+            "_id": ObjectId(projectId),
+            "isActive": True,
+            "visibility": "internal"
+        }) == 1
+
+    def isPrivatelyVisible(self, projectId: str) -> bool:
+        return self.__db.projects.count_documents({
+            "_id": ObjectId(projectId),
+            "isActive": True,
+            "visibility": "private"
+        }) == 1
+
+    def isInternalAndHasThisMember(self, projectId: str, userId: str) -> bool:
+        return self.__db.projects.count_documents({
+            "_id": ObjectId(projectId),
+            "isActive": True,
+            "visibility": "internal",
+            "members.userId": ObjectId(userId)
+        }) == 1
+
+    def hasThisMember(self, projectId: str, userId: str) -> bool:
+        return self.__db.projects.count_documents({
+            "_id": ObjectId(projectId),
+            "isActive": True,
+            "members.userId": ObjectId(userId)
         }) == 1
 
     def insertMetaProject(self, metaProject: dict) -> str:

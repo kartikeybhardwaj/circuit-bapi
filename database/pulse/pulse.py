@@ -41,6 +41,30 @@ class DBPulse:
             "fields": 1
         })["fields"]
 
+    def getActivePulseIdsByIds(self, pulseIds: "list of str") -> "list of dict":
+        pulseIds = list(map(ObjectId, pulseIds))
+        result = self.__db.pulses.find({
+            "_id": {
+                "$in": pulseIds
+            },
+            "isActive": True
+        }, {
+            "_id": 1
+        })
+        return json.loads(dumps(result))
+
+    def getTitlesMapByIds(self, pulseIds: "list of str") -> "list of dict":
+        pulseIds = list(map(ObjectId, pulseIds))
+        result = self.__db.pulses.find({
+            "_id": {
+                "$in": pulseIds
+            }
+        }, {
+            "_id": 1,
+            "title": 1
+        })
+        return json.loads(dumps(result))
+
     def insertMetaPulse(self, metaPulse: dict) -> str:
         _id = self.__db.metaPulses.insert_one(metaPulse).inserted_id
         return str(_id)
