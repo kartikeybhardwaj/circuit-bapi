@@ -1,3 +1,6 @@
+from bson.objectid import ObjectId
+import datetime
+
 from database.user.user import DBUser
 from database.project.project import DBProject
 from database.milestone.milestone import DBMilestone
@@ -104,7 +107,22 @@ class GetProjectsResource:
         return idMap
 
     def convertMongoDBObjectsToObjects(self, projects: "list of dict") -> "list of dict":
-        pass
+        for project in projects:
+            project["_id"] = project["_id"]["$oid"]
+            project["milestonesList"] = [ml["$oid"] for ml in project["milestonesList"]]
+            for member in project["members"]:
+                member["userId"] = member["userId"]["$oid"]
+                member["roleId"] = member["roleId"]["$oid"]
+            project["projectMetaId"] = project["projectMetaId"]["$oid"]
+            if project["meta"]["addedBy"]:
+                project["meta"]["addedBy"] = project["meta"]["addedBy"]["$oid"]
+            if project["meta"]["addedOn"]:
+                project["meta"]["addedOn"] = project["meta"]["addedOn"]["$date"]
+            if project["meta"]["lastUpdatedBy"]:
+                project["meta"]["lastUpdatedBy"] = project["meta"]["lastUpdatedBy"]["$oid"]
+            if project["meta"]["lastUpdatedOn"]:
+                project["meta"]["lastUpdatedOn"] = project["meta"]["lastUpdatedOn"]["$date"]
+        return projects
 
     def on_get(self, req, resp):
         responseObj = {
@@ -133,11 +151,13 @@ class GetProjectsResource:
             idMap.update(self.idMapForMilestoneIds(projects))
             # 08. update idMap with idMapForUserIds
             idMap.update(self.idMapForUserIds(projects))
-            # 09. attach projects in response
+            # 09. clean up mongo objects
+            projects = self.convertMongoDBObjectsToObjects(projects)
+            # 10. attach projects in response
             responseObj["data"]["projects"] = projects
-            # 10. attach idMap in response
+            # 11. attach idMap in response
             responseObj["data"]["idMap"] = idMap
-            # 11. set responseId to success
+            # 12. set responseId to success
             responseObj["responseId"] = 211
         except Exception as ex:
             responseObj["message"] = str(ex)
