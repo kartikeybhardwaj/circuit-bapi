@@ -14,6 +14,8 @@ class DBRole:
     def getAllRoles(self) -> dict:
         result = self.__db.roles.find({
             "isActive": True
+        }, {
+            "isActive": 0
         })
         return json.loads(dumps(result))
 
@@ -40,7 +42,7 @@ class DBRole:
         return json.loads(dumps(result))
 
     def hasMilestoneCreationAccess(self, roleId: str) -> bool:
-        result = self.__db.roles.find({
+        result = self.__db.roles.find_one({
             "_id": ObjectId(roleId),
             "isActive": True,
             "canModifyMilestones": True
@@ -50,7 +52,7 @@ class DBRole:
         return True if result else False
 
     def hasPulseCreationAccess(self, roleId: str) -> bool:
-        result = self.__db.roles.find({
+        result = self.__db.roles.find_one({
             "_id": ObjectId(roleId),
             "isActive": True,
             "canModifyPulses": True
