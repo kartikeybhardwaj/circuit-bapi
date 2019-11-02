@@ -117,7 +117,7 @@ class AddPulseResource:
         for assigneeId in assignees:
             try:
                 ObjectId(assigneeId)
-                if dbpr.hasThisAssignee(linkedProjectId, assigneeId): validAssignees.append(assigneeId)
+                if dbpr.hasThisMember(linkedProjectId, assigneeId): validAssignees.append(assigneeId)
                 else: invalidAssignees.append(assigneeId)
             except Exception as ex:
                 invalidAssignees.append(assigneeId)
@@ -155,6 +155,7 @@ class AddPulseResource:
                     responseObj["responseId"] = 110
                     responseObj["message"] = afterValidationLinkedProjectId[1]
                 elif not self.verifyPulseCreationAccess(requestObj["linkedProjectId"], req.params["kartoon-fapi-incoming"]["_id"]):
+                    # TODO: add super user access check
                     responseObj["responseId"] = 108
                     responseObj["message"] = "Unauthorized access"
                 else:
@@ -209,7 +210,7 @@ class AddPulseResource:
                                     dbm.insertPulseIdToMilestone(requestObj["linkedMilestoneId"], pulseId)
                                     dbu = DBUser()
                                     for userId in requestObj["assignees"]:
-                                        if not dbu.canAccessMilestone(userId, requestObj["linkedProjectId"], requestObj["linkedMilestoneId"]):
+                                        if not dbu.hasMilestoneAccess(userId, requestObj["linkedProjectId"], requestObj["linkedMilestoneId"]):
                                             dbu.insertAccessToMilestone(userId, requestObj["linkedProjectId"], requestObj["linkedMilestoneId"])
                                         dbu.insertAccessToPulse(userId, requestObj["linkedProjectId"], requestObj["linkedMilestoneId"], pulseId)
                                     responseObj["data"]["_id"] = pulseId

@@ -21,7 +21,9 @@ class Middleware:
         req.params["kartoon-fapi-incoming"]["username"] = "kartikey.bhardwaj"
         req.params["kartoon-fapi-incoming"]["displayname"] = "Kartikey Bhardwaj"
         req.params["kartoon-fapi-incoming"]["employeeid"] = "772780"
-        if req.method != "POST":
+        if req.method == "GET":
+            print("request params:", req.params)
+        if req.method == "POST":
             print("request params:", req.params)
             print("request media:", req.media)
 

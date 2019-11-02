@@ -122,6 +122,7 @@ class AddMilestoneResource:
                     responseObj["responseId"] = 110
                     responseObj["message"] = afterValidationLinkedProjectId[1]
                 elif not self.verifyMilestoneCreationAccess(requestObj["linkedProjectId"], req.params["kartoon-fapi-incoming"]["_id"]):
+                    # TODO: add super user access check
                     responseObj["responseId"] = 108
                     responseObj["message"] = "Unauthorized access"
                 else:
