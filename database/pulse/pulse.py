@@ -29,6 +29,20 @@ class DBPulse:
                 "$in": pulseIds
             },
             "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "color": 1,
+            "timeline": 1,
+            "assignees": 1,
+            "comments": 1,
+            "pulseMetaId": 1,
+            "fields": 1,
+            "linkedProjectId": 1,
+            "linkedMilestoneId": 1,
+            "meta": 1
         })
         return json.loads(dumps(result))
 

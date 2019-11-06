@@ -60,6 +60,16 @@ class DBUser:
         })
         return json.loads(dumps(result))["access"]["projects"]
 
+    def getAccessiblePulsesInMilestone(self, userId: str, projectId: str, milestoneId: str) -> list:
+        return self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "isActive": True,
+            "access.projects.milestones.milestoneId": ObjectId(milestoneId)
+        }, {
+            "_id": 0,
+            "access.projects.milestones.$.pulses": 1
+        })["access"]["projects"]["milestones"]["pulses"]
+
     def getActiveUserIdsByIds(self, userIds: "list of str") -> "list of dict":
         userIds = list(map(ObjectId, userIds))
         result = self.__db.users.find({

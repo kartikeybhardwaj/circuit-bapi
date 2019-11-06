@@ -11,9 +11,10 @@ class DBMilestone:
         self.__client = MongoClient('mongodb://kart:oon@127.0.0.1:27017/circuit')
         self.__db = self.__client.circuit
 
-    def countDocumentsById(self, projectId: str) -> int:
+    def countDocumentsById(self, milestoneId: str) -> int:
         return self.__db.milestones.count_documents({
-            "_id": ObjectId(projectId)
+            "_id": ObjectId(milestoneId),
+            "isActive": True
         })
 
     def getAllMilestones(self) -> dict:
@@ -42,6 +43,16 @@ class DBMilestone:
             "meta": 1
         })
         return json.loads(dumps(result))
+
+    def getPulsesList(self, projectId: str, milestoneId: str) -> list:
+        return self.__db.milestones.find_one({
+            "_id": ObjectId(milestoneId),
+            "linkedProjectId": ObjectId(projectId),
+            "isActive": True
+        }, {
+            "_id": 0,
+            "pulsesList": 1
+        })["pulsesList"]
 
     def getFieldsById(self, milestoneId: str) -> "list of dict":
         return self.__db.metaMilestones.find_one({

@@ -13,7 +13,8 @@ class DBProject:
 
     def countDocumentsById(self, projectId: str) -> int:
         return self.__db.projects.count_documents({
-            "_id": ObjectId(projectId)
+            "_id": ObjectId(projectId),
+            "isActive": True
         })
 
     def getAllProjectIds(self) -> dict:
@@ -128,6 +129,14 @@ class DBProject:
             "_id": ObjectId(projectId),
             "isActive": True,
             "visibility": "internal",
+            "members.userId": ObjectId(userId)
+        }) == 1
+
+    def isPrivateAndHasThisMember(self, projectId: str, userId: str) -> bool:
+        return self.__db.projects.count_documents({
+            "_id": ObjectId(projectId),
+            "isActive": True,
+            "visibility": "private",
             "members.userId": ObjectId(userId)
         }) == 1
 
