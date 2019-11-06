@@ -194,6 +194,7 @@ class AddPulseResource:
                                     for assigneeId in requestObj["assignees"]:
                                         dataToBeInserted["assignees"].append(ObjectId(assigneeId))
                                     dataToBeInserted["timeline"] = requestObj["timeline"]
+                                    dataToBeInserted["comments"] = []
                                     dataToBeInserted["pulseMetaId"] = ObjectId(requestObj["pulseMetaId"])
                                     dataToBeInserted["fields"] = requestObj["fields"]
                                     dataToBeInserted["linkedProjectId"] = ObjectId(requestObj["linkedProjectId"])
