@@ -15,6 +15,19 @@ dbpr = DBProject()
 dbm = DBMilestone()
 dbpu = DBPulse()
 
+# check if projectId is valid ObjectId
+# does this projectId exists
+# is this projectId active
+# verify access for user
+### projectId - is publicly visible
+### projectId - is internally visible, and user exists in project
+### projectId - is privately visible, and projectId exists in user access
+### is user superuser
+# or, is userId superuser (fetch all active milestones)
+# or, is public projectId (fetch all active milestones)
+# or, is internal projectId, and user member (fetch all active milestones)
+# or, is private projectId, and user's access to projectId (fetch active milestones only in user's access projectId)
+
 class GetMilestonesResource:
 
     def validateSchema(self, requestObj: dict) -> [bool, str]:
@@ -35,43 +48,30 @@ class GetMilestonesResource:
         except Exception as ex:
             success = False
             message = "Invalid projectId"
+        if success:
+            if dbpr.countDocumentsById(projectId) != 1:
+                success = False
+                message = "Invalid projectId"
         return [success, message]
 
     def verifyAccess(self, projectId: str, userId: str) -> bool:
         success = False
-        if (dbpr.isProjectActive(projectId) and
-            # check if project is active and
-            (dbpr.isPubliclyVisible(projectId) or
+        if (dbpr.isPubliclyVisible(projectId) or
             # or check for project public visibility
             dbpr.isInternalAndHasThisMember(projectId, userId) or
             # or check for project internal visibility and if user exist in project
-            dbu.checkIfUserIsSuperuser(userId))):
+            (dbpr.isPrivateAndHasThisMember(projectId, userId) and dbu.hasProjectAccess(userId, projectId)) or
+            # or check for project private visibility and if user exist in project and if user access has projectId
+            dbu.checkIfUserIsSuperuser(userId)):
             # or check for super user access
             success = True
         return success
 
-    def getMilestoneIdsForSuperuser(self, projectId: str) -> "list of str":
-        milestoneIds = [mi["$oid"] for mi in dbpr.getAllMilestoneIds(projectId)]
-        return milestoneIds
+    def getAllMilestoneIds(self, projectId: str) -> "list of str":
+        return [mi["$oid"] for mi in dbpr.getAllMilestoneIds(projectId)]
 
-    def getMilestoneIdsForNonSuperuser(self, projectId: str, userId: str) -> "list of str":
-        milestoneIds = []
-        if dbpr.isPubliclyVisible(projectId) or dbpr.isInternallyVisible(projectId):
-            # if project is public or internal, fetch all milestoneIds
-            milestoneIds = [mi["$oid"] for mi in dbpr.getAllMilestoneIds(projectId)]
-        elif dbpr.isPrivatelyVisible(projectId):
-            # if project is private, fetch milestoneIds from user's access
-            accessibleMilestones = dbu.getAccessibleMilestonesInProject(userId, projectId)
-            for am in accessibleMilestones:
-                for mids in am["milestones"]:
-                    milestoneIds.append(mids["milestoneId"]["$oid"])
-            # get only active milestoneIds out of allMilestoneIds
-            activeMilestones = dbm.getActiveMilesonteIdsByIds(milestoneIds)
-            activeMilestoneIds = [ami["_id"]["$oid"] for ami in activeMilestones]
-            for ami in milestoneIds:
-                if ami not in activeMilestoneIds:
-                    milestoneIds.remove(ami)
-        return milestoneIds
+    def getLimitedMilestoneIds(self, projectId: str, userId: str) -> "list of str":
+        return [mi["milestoneId"]["$oid"] for mi in dbu.getAccessibleMilestonesInProject(userId, projectId)]
 
     def removeInactivePulses(self, milestones: "list of dict") -> "list of dict":
         # 01. prepare allPulseIds
@@ -160,38 +160,46 @@ class GetMilestonesResource:
         if not afterValidation[0]:
             responseObj["responseId"] = 110
             responseObj["message"] = afterValidation[1]
-        elif not self.verifyAccess(req.params["projectId"], req.params["kartoon-fapi-incoming"]["_id"]):
-            # verify access
-            responseObj["responseId"] = 108
-            responseObj["message"] = "Unauthorized access"
         else:
-            try:
-                milestoneIds = []
-                # 01. check if user is super user
-                if dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"]):
-                # 02. 01. if yes, fetch all active milestoneIds
-                    milestoneIds = self.getMilestoneIdsForSuperuser(req.params["projectId"])
-                else:
-                    # 02. 02. if no, fetch limited active milestoneIds
-                    milestoneIds = self.getMilestoneIdsForNonSuperuser(req.params["projectId"], req.params["kartoon-fapi-incoming"]["_id"])
-                # 03. get milestones from activeMilestoneIds
-                milestones = dbm.getMilestonesByIds(milestoneIds)
-                # 04. removeInactivePulses from milestones
-                milestones = self.removeInactivePulses(milestones)
-                # 05. ceate idMap from idMapForMilestoneIds
-                idMap = self.idMapForMilestoneIds(milestones)
-                # 06. update idMap with idMapForPulseIds
-                idMap.update(self.idMapForPulseIds(milestones))
-                # 07. update idMap with idMapForUserIds
-                idMap.update(self.idMapForUserIds(milestones))
-                # 08. clean up mongo objects
-                milestones = self.convertMongoDBObjectsToObjects(milestones)
-                # 09. attach milestones in response
-                responseObj["data"]["milestones"] = milestones
-                # 10. attach idMap in response
-                responseObj["data"]["idMap"] = idMap
-                # 11. set responseId to success
-                responseObj["responseId"] = 211
-            except Exception as ex:
-                responseObj["message"] = str(ex)
+            # validate projectId
+            afterValidationProjectId = self.validateProjectId(req.params["projectId"])
+            if not afterValidationProjectId[0]:
+                responseObj["responseId"] = 110
+                responseObj["message"] = afterValidationProjectId[1]
+            elif not self.verifyAccess(req.params["projectId"], req.params["kartoon-fapi-incoming"]["_id"]):
+                # verify access for user
+                responseObj["responseId"] = 109
+                responseObj["message"] = "Unauthorized access"
+            else:
+                try:
+                    milestoneIds = []
+                    # 01. check if user is superuser OR if projectId is public OR if projectId is internal having userId as member
+                    if (dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"]) or
+                        dbpr.isPubliclyVisible(req.params["projectId"]) or
+                        dbpr.isInternalAndHasThisMember(req.params["projectId"], req.params["kartoon-fapi-incoming"]["_id"])):
+                        # 02. 01. if yes, fetch all active milestoneIds
+                        milestoneIds = self.getAllMilestoneIds(req.params["projectId"])
+                    else:
+                        # 02. 02. if no, fetch limited milestoneIds
+                        milestoneIds = self.getLimitedMilestoneIds(req.params["projectId"], req.params["kartoon-fapi-incoming"]["_id"])
+                    # 03. get milestones from activeMilestoneIds
+                    milestones = dbm.getMilestonesByIds(milestoneIds)
+                    # 04. removeInactivePulses from milestones
+                    milestones = self.removeInactivePulses(milestones)
+                    # 05. ceate idMap from idMapForMilestoneIds
+                    idMap = self.idMapForMilestoneIds(milestones)
+                    # 06. update idMap with idMapForPulseIds
+                    idMap.update(self.idMapForPulseIds(milestones))
+                    # 07. update idMap with idMapForUserIds
+                    idMap.update(self.idMapForUserIds(milestones))
+                    # 08. clean up mongo objects
+                    milestones = self.convertMongoDBObjectsToObjects(milestones)
+                    # 09. attach milestones in response
+                    responseObj["data"]["milestones"] = milestones
+                    # 10. attach idMap in response
+                    responseObj["data"]["idMap"] = idMap
+                    # 11. set responseId to success
+                    responseObj["responseId"] = 211
+                except Exception as ex:
+                    responseObj["message"] = str(ex)
         resp.media = responseObj
