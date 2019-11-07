@@ -11,11 +11,11 @@ dbm = DBMilestone()
 
 class GetProjectsResource:
 
-    def getProjectIdsForSuperuser(self) -> "list of str":
+    def getAllProjectIds(self) -> "list of str":
         projectIds = [pi["_id"]["$oid"] for pi in dbpr.getAllProjectIds()]
         return projectIds
 
-    def getProjectIdsForNonSuperuser(self, userId: str) -> "list of str":
+    def getLimitedProjectIds(self, userId: str) -> "list of str":
         # 01. fetch accessible projectIds from users collection
         accessibleProjects = dbu.getAccessibleProjects(userId)
         accessibleProjectIds = [api["projectId"]["$oid"] for api in accessibleProjects]
@@ -23,10 +23,7 @@ class GetProjectsResource:
         publicProjects = dbpr.getPublicProjectIds()
         publicProjectIds = [ppi["_id"]["$oid"] for ppi in publicProjects]
         # 03. merge and get set of accessible and public projectIds
-        allProjectIds = list(set(accessibleProjectIds + publicProjectIds))
-        # 04. get only activeProjectIds out of allProjectIds
-        activeProjects = dbpr.getActiveProjectIdsByIds(allProjectIds)
-        projectIds = [api["_id"]["$oid"] for api in activeProjects]
+        projectIds = list(set(accessibleProjectIds + publicProjectIds))
         return projectIds
 
     def removeInactiveMilestones(self, projects: "list of dict") -> "list of dict":
@@ -132,14 +129,14 @@ class GetProjectsResource:
         }
         try:
             projectIds = []
-            # 01. check if user is super user
+            # 01. check if user is superuser
             if dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"]):
-                # 02. 01. if yes, fetch all projectIds
-                projectIds = self.getProjectIdsForSuperuser()
+                # 02. 01. if yes, fetch all active projectIds
+                projectIds = self.getAllProjectIds()
             else:
                 # 02. 02. if no, fetch limited projectIds
-                projectIds = self.getProjectIdsForNonSuperuser(req.params["kartoon-fapi-incoming"]["_id"])
-            # 03. fetch projects from projectIds
+                projectIds = self.getLimitedProjectIds(req.params["kartoon-fapi-incoming"]["_id"])
+            # 03. fetch active projects from projectIds
             projects = dbpr.getProjectsByIds(projectIds)
             # 04. removeInactiveMilestones from projects
             projects = self.removeInactiveMilestones(projects)

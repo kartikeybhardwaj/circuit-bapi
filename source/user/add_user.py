@@ -63,7 +63,7 @@ class AddUserResource:
         else:
             try:
                 dbu = DBUser()
-                userCount = dbu.countDocuments(requestObj["username"])
+                userCount = dbu.countDocumentsByUsername(requestObj["username"])
                 if userCount == 1:
                     # if user exists
                     responseObj["responseId"] = 108

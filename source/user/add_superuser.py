@@ -39,7 +39,7 @@ class AddSuperuserResource:
         else:
             try:
                 dbu = DBUser()
-                userCount = dbu.countDocuments(requestObj["username"])
+                userCount = dbu.countDocumentsByUsername(requestObj["username"])
                 if userCount == 1:
                     # if user exists
                     dbu.updateUserToSuperuser()
