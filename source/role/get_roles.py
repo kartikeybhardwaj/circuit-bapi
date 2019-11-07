@@ -11,6 +11,19 @@ class GetRolesResource():
             idMap[role["_id"]["$oid"]] = role["title"]
         return idMap
 
+    def convertMongoDBObjectsToObjects(self, roles: "list of dict") -> "list of dict":
+        for role in roles:
+            role["_id"] = role["_id"]["$oid"]
+            if role["meta"]["addedBy"]:
+                role["meta"]["addedBy"] = role["meta"]["addedBy"]["$oid"]
+            if role["meta"]["addedOn"]:
+                role["meta"]["addedOn"] = role["meta"]["addedOn"]["$date"]
+            if role["meta"]["lastUpdatedBy"]:
+                role["meta"]["lastUpdatedBy"] = role["meta"]["lastUpdatedBy"]["$oid"]
+            if role["meta"]["lastUpdatedOn"]:
+                role["meta"]["lastUpdatedOn"] = role["meta"]["lastUpdatedOn"]["$date"]
+        return roles
+
     def on_get(self, req, resp):
         responseObj = {
             "responseId": 111,
@@ -22,11 +35,13 @@ class GetRolesResource():
             roles = dbr.getAllRoles()
             # 02. create idMap from idMapForRoleIds
             idMap = self.idMapForRoleIds(roles)
-            # 03. attach roles in response
+            # 03. clean up mongo objects
+            roles = self.convertMongoDBObjectsToObjects(roles)
+            # 04. attach roles in response
             responseObj["data"]["roles"] = roles
-            # 04. attach idMap in response
+            # 05. attach idMap in response
             responseObj["data"]["idMap"] = idMap
-            # 05. set responseId to success
+            # 06. set responseId to success
             responseObj["responseId"] = 211
         except Exception as ex:
             responseObj["message"] = str(ex)
