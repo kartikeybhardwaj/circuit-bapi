@@ -15,7 +15,16 @@ class DBRole:
         result = self.__db.roles.find({
             "isActive": True
         }, {
-            "isActive": 0
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "canModifyUsersRole": 1,
+            "canModifyLocations": 1,
+            "canModifyProjects": 1,
+            "canModifyMilestones": 1,
+            "canModifyPulses": 1,
+            "meta": 1
         })
         return json.loads(dumps(result))
 
