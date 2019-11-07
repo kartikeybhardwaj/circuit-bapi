@@ -58,7 +58,7 @@ class DBUser:
             "_id": 0,
             "access.projects.milestones.milestoneId": 1
         })
-        return json.loads(dumps(result))["access"]["projects"]
+        return json.loads(dumps(result))["access"]["projects"][0]["milestones"]
 
     def getAccessiblePulsesInMilestone(self, userId: str, projectId: str, milestoneId: str) -> list:
         return self.__db.users.find_one({
