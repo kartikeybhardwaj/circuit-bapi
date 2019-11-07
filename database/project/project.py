@@ -97,6 +97,17 @@ class DBProject:
         })
         return json.loads(dumps(result))["milestonesList"]
 
+    def getAllMetaProjects(self) -> dict:
+        result = self.__db.metaProjects.find({}, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "fields": 1,
+            "meta": 1
+        })
+        return json.loads(dumps(result))
+
     def isProjectActive(self, projectId: str) -> bool:
         return self.__db.projects.count_documents({
             "_id": ObjectId(projectId),

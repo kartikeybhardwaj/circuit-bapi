@@ -13,20 +13,29 @@ class DBUser:
         self.__client = MongoClient('mongodb://kart:oon@127.0.0.1:27017/circuit')
         self.__db = self.__client.circuit
 
-    def countDocuments(self, username: str) -> int:
+    def countDocumentsById(self, userId: str) -> int:
         return self.__db.users.count_documents({
-            "username": username
+            "_id": ObjectId(userId),
+            "isActive": True
+        })
+
+    def countDocumentsByUsername(self, username: str) -> int:
+        return self.__db.users.count_documents({
+            "username": username,
+            "isActive": True
         })
 
     def getUserByUsername(self, username: str) -> dict:
         result = self.__db.users.find_one({
-            "username": username
+            "username": username,
+            "isActive": True
         })
         return json.loads(dumps(result))
 
     def getIdByUsername(self, username: str) -> str:
         _id = self.__db.users.find_one({
-            "username": username
+            "username": username,
+            "isActive": True
         }, {
             "_id": 1
         })
