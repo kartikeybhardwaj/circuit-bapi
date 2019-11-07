@@ -23,10 +23,14 @@ dbpu = DBPulse()
 # is this projectId active
 # is this milestoneId in this projectId
 # verify access for user
-## or, is userId superuser (fetch all active pulses)
-## or, is public projectId (fetch all active pulses)
-## or, is internal projectId, and user member (fetch all active pulses)
-## or, is private projectId, and user's access to milestoneId (fetch active pulses only in user's access milestoneId)
+### projectId - is publicly visible
+### projectId - is internally visible, and user exists in project
+### projectId - is privately visible, and projectId exists in user access
+### is user superuser
+# or, is userId superuser (fetch all active pulses)
+# or, is public projectId (fetch all active pulses)
+# or, is internal projectId, and user member (fetch all active pulses)
+# or, is private projectId, and user's access to milestoneId (fetch active pulses only in user's access milestoneId)
 
 class GetPulsesResource:
 
@@ -70,15 +74,13 @@ class GetPulsesResource:
 
     def verifyAccess(self, milestoneId: str, projectId: str, userId: str) -> bool:
         success = False
-        if (dbpr.isProjectActive(projectId) and
-            # check if project is active and
-            (dbpr.isPubliclyVisible(projectId) or
+        if (dbpr.isPubliclyVisible(projectId) or
             # or check for project public visibility
             dbpr.isInternalAndHasThisMember(projectId, userId) or
             # or check for project internal visibility and if user exist in project
             (dbpr.isPrivateAndHasThisMember(projectId, userId) and dbu.hasMilestoneAccess(userId, projectId, milestoneId)) or
             # or check for project private visibility and if user exist in project and if user access has milestoneId
-            dbu.checkIfUserIsSuperuser(userId))):
+            dbu.checkIfUserIsSuperuser(userId)):
             # or check for super user access
             success = True
         return success
