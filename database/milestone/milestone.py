@@ -44,6 +44,17 @@ class DBMilestone:
         })
         return json.loads(dumps(result))
 
+    def getAllMetaMilestones(self) -> dict:
+        result = self.__db.metaMilestones.find({}, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "fields": 1,
+            "meta": 1
+        })
+        return json.loads(dumps(result))
+
     def getPulsesList(self, projectId: str, milestoneId: str) -> list:
         return self.__db.milestones.find_one({
             "_id": ObjectId(milestoneId),
