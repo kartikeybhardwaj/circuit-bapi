@@ -46,6 +46,17 @@ class DBPulse:
         })
         return json.loads(dumps(result))
 
+    def getAllMetaPulses(self) -> dict:
+        result = self.__db.metaPulses.find({}, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "fields": 1,
+            "meta": 1
+        })
+        return json.loads(dumps(result))
+
     def getFieldsById(self, pulseId: str) -> "list of dict":
         return self.__db.metaPulses.find_one({
             "_id": ObjectId(pulseId),
