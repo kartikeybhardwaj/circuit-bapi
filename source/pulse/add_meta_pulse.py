@@ -4,7 +4,7 @@ import re
 
 from jsonschema import validate
 
-from utils.req_validator.validate_add_meta_pulse import validate_add_meta_pulse_schema_1, validate_add_meta_pulse_schema_2
+from utils.req_validator.validate_add_meta_pulse import validate_add_meta_pulse_schema
 
 from database.user.user import DBUser
 from database.counter.counter import DBCounter
@@ -16,15 +16,10 @@ class AddMetaPulseResource:
         success = False
         message = ""
         try:
-            validate(instance=requestObj, schema=validate_add_meta_pulse_schema_1)
+            validate(instance=requestObj, schema=validate_add_meta_pulse_schema)
             success = True
-        except Exception as ex1:
-            message = ex1.message
-            try:
-                validate(instance=requestObj, schema=validate_add_meta_pulse_schema_2)
-                success = True
-            except Exception as ex2:
-                message = ex2.message
+        except Exception as ex:
+            message = ex.message
         return [success, message]
 
     """
