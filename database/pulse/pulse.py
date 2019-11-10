@@ -16,6 +16,12 @@ class DBPulse:
             "_id": ObjectId(projectId)
         })
 
+    def hasThisLinkedMilestoneId(self, milestoneId: str, pulseId: str) -> bool:
+        return self.__db.pulses.count_documents({
+            "_id": ObjectId(pulseId),
+            "linkedMilestoneId": ObjectId(milestoneId)
+        }) == 1
+
     def getAllPulses(self) -> dict:
         result = self.__db.pulses.find({
             "isActive": True
@@ -97,3 +103,12 @@ class DBPulse:
     def insertPulse(self, pulse: dict) -> str:
         _id = self.__db.pulses.insert_one(pulse).inserted_id
         return str(_id)
+
+    def updatePulseTimeline(self, pulseId: str, timeline: dict) -> bool:
+        return self.__db.pulses.update_one({
+            "_id": ObjectId(pulseId)
+        }, {
+            "$set": {
+                "timeline": timeline
+            }
+        }).modified_count == 1
