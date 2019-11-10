@@ -23,6 +23,7 @@ from source.project.get_meta_projects import GetMetaProjectsResource
 from source.milestone.get_meta_milestones import GetMetaMilestonesResource
 from source.pulse.get_meta_pulses import GetMetaPulsesResource
 from source.pulse.get_my_pulses import GetMyPulsesResource
+from source.pulse.update_pulse_timeline import UpdatePulseTimelineResource
 
 cors = CORS(allow_origins_list = ["http://localhost:4200"],
             allow_credentials_all_origins = True,
@@ -55,3 +56,4 @@ api.add_route("/get-meta-projects", GetMetaProjectsResource())
 api.add_route("/get-meta-milestones", GetMetaMilestonesResource())
 api.add_route("/get-meta-pulses", GetMetaPulsesResource())
 api.add_route("/get-my-pulses", GetMyPulsesResource())
+api.add_route("/update-pulse-timeline", UpdatePulseTimelineResource())
