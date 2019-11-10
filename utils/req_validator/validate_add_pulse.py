@@ -34,7 +34,7 @@ validate_add_pulse_schema = {
             "type": "string",
             "enum": [
                 "blue",
-                "purple",
+                "green",
                 "red",
                 "black"
             ]
