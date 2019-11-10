@@ -79,6 +79,22 @@ class DBUser:
             "access.projects.milestones.$.pulses": 1
         })["access"]["projects"]["milestones"]["pulses"]
 
+    def getAccessibleUserPulses(self, userId: str) -> list:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "isActive": True
+        }, {
+            "_id": 0,
+            "access.projects.milestones.pulses": 1
+        })["access"]
+        result = json.loads(dumps(result))
+        _out = []
+        for project in result["projects"]:
+            for milestone in project["milestones"]:
+                for pulse in milestone["pulses"]:
+                    _out.append(pulse["$oid"])
+        return _out
+
     def getActiveUserIdsByIds(self, userIds: "list of str") -> "list of dict":
         userIds = list(map(ObjectId, userIds))
         result = self.__db.users.find({
