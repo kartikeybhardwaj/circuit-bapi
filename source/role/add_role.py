@@ -9,6 +9,10 @@ from database.user.user import DBUser
 from database.counter.counter import DBCounter
 from database.role.role import DBRole
 
+dbu = DBUser()
+dbc = DBCounter()
+dbr = DBRole()
+
 class AddRoleResource:
 
     def validateSchema(self, requestObj: dict) -> [bool, str]:
@@ -23,10 +27,28 @@ class AddRoleResource:
 
     def alreadyHasThisRole(self, title: str) -> bool:
         success = False
-        dbr = DBRole()
         if dbr.countDocumentsByTitle(title) > 0:
             success = True
         return success
+
+    def prepareDataToBeInserted(self, index: int, requestObj: dict, userId: str) -> dict:
+        dataToBeInserted = {}
+        dataToBeInserted["index"] = index
+        dataToBeInserted["isActive"] = True
+        dataToBeInserted["title"] = requestObj["title"]
+        dataToBeInserted["description"] = requestObj["description"]
+        dataToBeInserted["canModifyUsersRole"] = requestObj["canModifyUsersRole"]
+        dataToBeInserted["canModifyLocations"] = requestObj["canModifyLocations"]
+        dataToBeInserted["canModifyProjects"] = requestObj["canModifyProjects"]
+        dataToBeInserted["canModifyMilestones"] = requestObj["canModifyMilestones"]
+        dataToBeInserted["canModifyPulses"] = requestObj["canModifyPulses"]
+        dataToBeInserted["meta"] = {
+            "addedBy": ObjectId(userId),
+            "addedOn": datetime.datetime.utcnow(),
+            "lastUpdatedBy": None,
+            "lastUpdatedOn": None
+        }
+        return dataToBeInserted
 
     """
     REQUEST:
@@ -51,35 +73,24 @@ class AddRoleResource:
             responseObj["message"] = afterValidation[1]
         else:
             try:
-                dbu = DBUser()
+                # check if user is superuser
                 if not dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"]):
                     responseObj["responseId"] = 109
                     responseObj["message"] = "Unauthorized access"
                 elif self.alreadyHasThisRole(requestObj["title"]):
+                    # check if this role already exists by title
                     responseObj["responseId"] = 108
                     responseObj["message"] = "Already exists"
                 else:
-                    dbc = DBCounter()
+                    # 01. get index for new role
                     index = dbc.getNewRoleIndex()
+                    # 02. increment role counter
                     dbc.incrementRoleIndex()
-                    dataToBeInserted = {}
-                    dataToBeInserted["index"] = index
-                    dataToBeInserted["isActive"] = True
-                    dataToBeInserted["title"] = requestObj["title"]
-                    dataToBeInserted["description"] = requestObj["description"]
-                    dataToBeInserted["canModifyUsersRole"] = requestObj["canModifyUsersRole"]
-                    dataToBeInserted["canModifyLocations"] = requestObj["canModifyLocations"]
-                    dataToBeInserted["canModifyProjects"] = requestObj["canModifyProjects"]
-                    dataToBeInserted["canModifyMilestones"] = requestObj["canModifyMilestones"]
-                    dataToBeInserted["canModifyPulses"] = requestObj["canModifyPulses"]
-                    dataToBeInserted["meta"] = {
-                        "addedBy": ObjectId(req.params["kartoon-fapi-incoming"]["_id"]),
-                        "addedOn": datetime.datetime.utcnow(),
-                        "lastUpdatedBy": None,
-                        "lastUpdatedOn": None
-                    }
-                    dbr = DBRole()
+                    # 03. prepare dataToBeInserted
+                    dataToBeInserted = self.prepareDataToBeInserted(index, requestObj, req.params["kartoon-fapi-incoming"]["_id"])
+                    # 04. insert dataToBeInserted in roles and attach roleId in response
                     responseObj["data"]["_id"] = dbr.insertRole(dataToBeInserted)
+                    # 05. set responseId to success
                     responseObj["responseId"] = 211
             except Exception as ex:
                 responseObj["message"] = str(ex)
