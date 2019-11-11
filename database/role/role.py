@@ -11,6 +11,14 @@ class DBRole:
         self.__client = MongoClient('mongodb://kart:oon@127.0.0.1:27017/circuit')
         self.__db = self.__client.circuit
 
+    def getOwnerRoleId(self) -> str:
+        result = self.__db.roles.find_one({
+            "title": "Owner"
+        }, {
+            "_id": 1
+        })
+        return json.loads(dumps(result))["_id"]["$oid"]
+
     def getAllRoles(self) -> dict:
         result = self.__db.roles.find({
             "isActive": True
