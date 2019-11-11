@@ -52,7 +52,7 @@ class DBCreator:
             roles = [{
                 "index": 1,
                 "isActive": True,
-                "title": "Project Manager",
+                "title": "Owner",
                 "description": "",
                 "canModifyUsersRole": True,
                 "canModifyLocations": True,
@@ -68,6 +68,22 @@ class DBCreator:
             }, {
                 "index": 2,
                 "isActive": True,
+                "title": "Project Manager",
+                "description": "",
+                "canModifyUsersRole": True,
+                "canModifyLocations": True,
+                "canModifyProjects": True,
+                "canModifyMilestones": True,
+                "canModifyPulses": True,
+                "meta": {
+                    "addedBy": None,
+                    "addedOn": None,
+                    "lastUpdatedBy": None,
+                    "lastUpdatedOn": None
+                }
+            }, {
+                "index": 3,
+                "isActive": True,
                 "title": "Project Member",
                 "description": "",
                 "canModifyUsersRole": False,
@@ -82,9 +98,9 @@ class DBCreator:
                     "lastUpdatedOn": None
                 }
             }, {
-                "index": 3,
+                "index": 4,
                 "isActive": True,
-                "title": "That One Guy",
+                "title": "Guest",
                 "description": "",
                 "canModifyUsersRole": False,
                 "canModifyLocations": False,
