@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from bson.objectid import ObjectId
 import datetime
 import re
@@ -29,6 +33,7 @@ class AddMilestoneResource:
             validate(instance=requestObj, schema=validate_add_milestone_schema)
             success = True
         except Exception as ex:
+            log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
             message = ex.message
         return [success, message]
 
@@ -51,6 +56,7 @@ class AddMilestoneResource:
         ## or, milestoneMetaId is None and fields exists
         ## or, milestoneMetaId is not None and fields does not exists
         if (not milestoneMetaId and len(fields) > 0) or (milestoneMetaId and len(fields) == 0):
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "milestoneMetaId and fields mismatch"))
             success = False
             message = "Invalid milestoneMetaId"
         else:
@@ -59,6 +65,7 @@ class AddMilestoneResource:
                 try:
                     ObjectId(milestoneMetaId)
                 except Exception as ex:
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
                     success = False
                     message = "Invalid milestoneMetaId"
             if success:
@@ -92,11 +99,13 @@ class AddMilestoneResource:
         try:
             ObjectId(linkedProjectId)
         except Exception as ex:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
             success = False
             message = "Invalid linkedProjectId"
         if success:
             # check if linkedProjectId exists
             if dbpr.countDocumentsById(linkedProjectId) != 1:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "linkedProjectId does not exist"))
                 success = False
                 message = "Invalid linkedProjectId"
         return [success, message]
@@ -145,9 +154,11 @@ class AddMilestoneResource:
         # validate schema
         afterValidation = self.validateSchema(requestObj)
         if not afterValidation[0]:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "schema validation failed"))
             responseObj["responseId"] = 110
             responseObj["message"] = afterValidation[1]
         else:
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, "schema validation successful"))
             try:
                 # validate linkedProjectId
                 afterValidationLinkedProjectId = self.validateLinkedProjectId(requestObj["linkedProjectId"])
@@ -156,6 +167,7 @@ class AddMilestoneResource:
                     responseObj["message"] = afterValidationLinkedProjectId[1]
                 elif (not self.verifyMilestoneCreationAccess(requestObj["linkedProjectId"], req.params["kartoon-fapi-incoming"]["_id"])
                     and not dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"])):
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "user does not have milestoneCreationAccess nor is superuser"))
                     # check for milestoneCreationAccess or superuser access
                     responseObj["responseId"] = 109
                     responseObj["message"] = "Unauthorized access"
@@ -163,6 +175,7 @@ class AddMilestoneResource:
                     # validate timeline
                     afterValidationTimeline = self.validateTimeline(requestObj["timeline"])
                     if not afterValidationTimeline[0]:
+                        log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid timeline"))
                         responseObj["responseId"] = 110
                         responseObj["message"] = afterValidationTimeline[1]
                     else:
@@ -172,6 +185,8 @@ class AddMilestoneResource:
                             responseObj["responseId"] = 110
                             responseObj["message"] = afterValidationMilestoneMeta[1]
                         else:
+                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "all validations passed"))
+                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "preparing data to insert"))
                             # 01. get index for new milestone
                             index = dbc.getNewMilestoneIndex()
                             # 02. increment milestone counter
@@ -179,13 +194,16 @@ class AddMilestoneResource:
                             # 03. prepare DataToBeInserted
                             dataToBeInserted = self.prepareDataToBeInserted(index, requestObj, req.params["kartoon-fapi-incoming"]["_id"])
                             # 04. insertMilestone
+                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                             milestoneId = dbm.insertMilestone(dataToBeInserted)
                             # 05. insertMilestoneIdToProject
+                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                             dbpr.insertMilestoneIdToProject(requestObj["linkedProjectId"], milestoneId)
                             # 06. attach milestoneId in response
                             responseObj["data"]["_id"] = milestoneId
                             # 07. set responseId to success
                             responseObj["responseId"] = 211
             except Exception as ex:
+                log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                 responseObj["message"] = str(ex)
         resp.media = responseObj

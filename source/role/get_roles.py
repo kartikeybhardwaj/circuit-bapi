@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from database.role.role import DBRole
 
 dbr = DBRole()
@@ -44,5 +48,6 @@ class GetRolesResource():
             # 06. set responseId to success
             responseObj["responseId"] = 211
         except Exception as ex:
+            log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
             responseObj["message"] = str(ex)
         resp.media = responseObj

@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from bson.objectid import ObjectId
 import datetime
 import re
@@ -43,6 +47,7 @@ class UpdatePulseTimelineResource:
             validate(instance=requestObj, schema=validate_update_pulse_timeline_schema)
             success = True
         except Exception as ex:
+            log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
             message = ex.message
         return [success, message]
 
@@ -52,13 +57,16 @@ class UpdatePulseTimelineResource:
         try:
             ObjectId(pulseId)
         except Exception as ex:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
             success = False
             message = "Invalid pulseId"
         if success:
             if dbpu.countDocumentsById(pulseId) != 1:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "pulse id does not exist"))
                 success = False
                 message = "Invalid pulseId"
             elif not dbpu.hasThisLinkedMilestoneId(milestoneId, pulseId):
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "does not have linkedMilestoneId"))
                 success = False
                 message = "Invalid pulseId"
         return [success, message]
@@ -69,13 +77,16 @@ class UpdatePulseTimelineResource:
         try:
             ObjectId(milestoneId)
         except Exception as ex:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
             success = False
             message = "Invalid milestoneId"
         if success:
             if dbm.countDocumentsById(milestoneId) != 1:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "milestonId doesnot exist"))
                 success = False
                 message = "Invalid milestoneId"
             elif not dbm.hasThisLinkedProjectId(projectId, milestoneId):
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "does not have linkedProjectId"))
                 success = False
                 message = "Invalid milestoneId"
         return [success, message]
@@ -86,10 +97,12 @@ class UpdatePulseTimelineResource:
         try:
             ObjectId(projectId)
         except Exception as ex:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
             success = False
             message = "Invalid projectId"
         if success:
             if dbpr.countDocumentsById(projectId) != 1:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "does not have projectId"))
                 success = False
                 message = "Invalid projectId"
         return [success, message]
@@ -128,42 +141,52 @@ class UpdatePulseTimelineResource:
         # validate schema
         afterValidation = self.validateSchema(requestObj)
         if not afterValidation[0]:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "schema validation failed"))
             responseObj["responseId"] = 110
             responseObj["message"] = afterValidation[1]
         else:
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, "schema validation successful"))
             try:
                 # validate pulseId
                 afterValidationPulseId = self.validatePulseId(requestObj["pulseId"], requestObj["milestoneId"])
                 if not afterValidationPulseId[0]:
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid pulseId"))
                     responseObj["responseId"] = 110
                     responseObj["message"] = afterValidationPulseId[1]
                 else:
-                    # validate milistoneId
+                    # validate milestoneId
                     afterValidationMilestoneId = self.validateMilestoneId(requestObj["milestoneId"], requestObj["projectId"])
                     if not afterValidationMilestoneId[0]:
+                        log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid milestone"))
                         responseObj["responseId"] = 110
                         responseObj["message"] = afterValidationMilestoneId[1]
                     else:
                         # validate projectId
                         afterValidationProjectId = self.validateProjectId(requestObj["projectId"])
                         if not afterValidationProjectId[0]:
+                            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid projectId"))
                             responseObj["responseId"] = 110
                             responseObj["message"] = afterValidationProjectId[1]
                         else:
                             # validate timeline
                             afterValidationTimeline = self.validateTimeline(requestObj["timeline"])
                             if not afterValidationTimeline[0]:
+                                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid timeline"))
                                 responseObj["responseId"] = 110
                                 responseObj["message"] = afterValidationTimeline[1]
                             else:
                                 # verify if user has access to update this pulse
                                 if not self.verifyAccess(req.params["kartoon-fapi-incoming"]["_id"], requestObj["projectId"]):
+                                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "user is not superuser"))
                                     responseObj["responseId"] = 109
                                     responseObj["message"] = "Unauthorized access"
                                 else:
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "user is superuser"))
                                     # update pulse timeline
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "updating data"))
                                     dbpu.updatePulseTimeline(requestObj["pulseId"], requestObj["timeline"])
                                     responseObj["responseId"] = 211
             except Exception as ex:
+                log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                 responseObj["message"] = str(ex)
         resp.media = responseObj

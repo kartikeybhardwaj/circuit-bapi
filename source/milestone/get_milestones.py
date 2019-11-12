@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from bson.objectid import ObjectId
 import datetime
 
@@ -201,5 +205,6 @@ class GetMilestonesResource:
                     # 11. set responseId to success
                     responseObj["responseId"] = 211
                 except Exception as ex:
+                    log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                     responseObj["message"] = str(ex)
         resp.media = responseObj

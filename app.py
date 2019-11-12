@@ -1,6 +1,8 @@
 import falcon
 from falcon_cors import CORS
 
+from utils.log import logger as log
+
 from middleware.middleware import Middleware
 from source.extras.status import StatusResource
 from source.extras.creator import CreatorResource
@@ -57,3 +59,5 @@ api.add_route("/get-meta-milestones", GetMetaMilestonesResource())
 api.add_route("/get-meta-pulses", GetMetaPulsesResource())
 api.add_route("/get-my-pulses", GetMyPulsesResource())
 api.add_route("/update-pulse-timeline", UpdatePulseTimelineResource())
+
+log.info("Circuit is up and running..")

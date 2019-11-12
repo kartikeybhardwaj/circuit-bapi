@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from bson.objectid import ObjectId
 import datetime
 
@@ -20,6 +24,7 @@ class AddSuperuserResource:
             validate(instance=requestObj, schema=validate_add_user_schema)
             success = True
         except Exception as ex:
+            log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
             message = ex.message
         return [success, message]
 
@@ -58,16 +63,20 @@ class AddSuperuserResource:
         # validate schema
         afterValidation = self.validateSchema(requestObj)
         if not afterValidation[0]:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "schema validation failed"))
             responseObj["responseId"] = 110
             responseObj["message"] = afterValidation[1]
         else:
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, "schema validation successful"))
             try:
                 # check if user exists
                 userCount = dbu.countDocumentsByUsername(requestObj["username"])
                 if userCount == 1:
+                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "user exists, update to superuser"))
                     # if yes, updateUserToSuperuser
                     dbu.updateUserToSuperuser(requestObj["username"])
                 elif userCount == 0:
+                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "user does not exist, add as superuser"))
                     # if no
                     # 01. get index for new user
                     index = dbc.getNewUserIndex()
@@ -80,5 +89,6 @@ class AddSuperuserResource:
                 # 05. set responseId to success
                 responseObj["responseId"] = 211
             except Exception as ex:
+                log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                 responseObj["message"] = str(ex)
         resp.media = responseObj

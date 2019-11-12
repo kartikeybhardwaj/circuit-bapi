@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from bson.objectid import ObjectId
 import datetime
 
@@ -22,6 +26,7 @@ class AddRoleResource:
             validate(instance=requestObj, schema=validate_add_role_schema)
             success = True
         except Exception as ex:
+            log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
             message = ex.message
         return [success, message]
 
@@ -69,19 +74,24 @@ class AddRoleResource:
         }
         afterValidation = self.validateSchema(requestObj)
         if not afterValidation[0]:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "schema validation failed"))
             responseObj["responseId"] = 110
             responseObj["message"] = afterValidation[1]
         else:
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, "schema validation successful"))
             try:
                 # check if user is superuser
                 if not dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"]):
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "user is not superuser"))
                     responseObj["responseId"] = 109
                     responseObj["message"] = "Unauthorized access"
                 elif self.alreadyHasThisRole(requestObj["title"]):
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "already has role by this title"))
                     # check if this role already exists by title
                     responseObj["responseId"] = 108
                     responseObj["message"] = "Already exists"
                 else:
+                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "preparing data to insert"))
                     # 01. get index for new role
                     index = dbc.getNewRoleIndex()
                     # 02. increment role counter
@@ -89,9 +99,11 @@ class AddRoleResource:
                     # 03. prepare dataToBeInserted
                     dataToBeInserted = self.prepareDataToBeInserted(index, requestObj, req.params["kartoon-fapi-incoming"]["_id"])
                     # 04. insert dataToBeInserted in roles and attach roleId in response
+                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                     responseObj["data"]["_id"] = dbr.insertRole(dataToBeInserted)
                     # 05. set responseId to success
                     responseObj["responseId"] = 211
             except Exception as ex:
+                log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                 responseObj["message"] = str(ex)
         resp.media = responseObj

@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from bson.objectid import ObjectId
 import datetime
 import re
@@ -27,6 +31,7 @@ class AddProjectResource:
             validate(instance=requestObj, schema=validate_add_project_schema)
             success = True
         except Exception as ex:
+            log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
             message = ex.message
         return [success, message]
 
@@ -39,10 +44,12 @@ class AddProjectResource:
                 ObjectId(member["roleId"])
                 # check if roleId exists
                 if dbr.countDocumentsById(member["roleId"]) != 1:
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "roleId does not exist"))
                     success = False
                     message = "Invalid member roleId"
                     break
             except Exception as ex:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
                 success = False
                 message = "Invalid member ObjectId"
                 break
@@ -55,6 +62,7 @@ class AddProjectResource:
         ## or, projectMetaId is None and fields exists
         ## or, projectMetaId is not None and fields does not exists
         if (not projectMetaId and len(fields) > 0) or (projectMetaId and len(fields) == 0):
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "projectMetaId and fields mismatch"))
             success = False
             message = "Invalid projectMetaId"
         else:
@@ -63,6 +71,7 @@ class AddProjectResource:
                 try:
                     ObjectId(projectMetaId)
                 except Exception as ex:
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
                     success = False
                     message = "Invalid projectMetaId"
             if success:
@@ -155,9 +164,11 @@ class AddProjectResource:
         # validate schema
         afterValidation = self.validateSchema(requestObj)
         if not afterValidation[0]:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "schema validation failed"))
             responseObj["responseId"] = 110
             responseObj["message"] = afterValidation[1]
         else:
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, "schema validation successful"))
             try:
                 # validate members role
                 afterValidationMembers = self.validateMembersRole(requestObj["members"])
@@ -171,6 +182,8 @@ class AddProjectResource:
                         responseObj["responseId"] = 110
                         responseObj["message"] = afterValidationProjectMeta[1]
                     else:
+                        log.info((thisFilename, inspect.currentframe().f_code.co_name, "all validations passed"))
+                        log.info((thisFilename, inspect.currentframe().f_code.co_name, "preparing data to insert"))
                         # 01. get index for new project
                         index = dbc.getNewProjectIndex()
                         # 02. increment project counter
@@ -180,13 +193,16 @@ class AddProjectResource:
                         # 04. prepare MembersForDataToBeInserted
                         dataToBeInserted = self.prepareMembersForDataToBeInserted(dataToBeInserted, req.params["kartoon-fapi-incoming"]["_id"])
                         # 05. insert project
+                        log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                         projectId = dbpr.insertProject(dataToBeInserted)
                         # 06. for every member, insertAccessProjectId
+                        log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                         self.insertAccessProjectIdForMember(dataToBeInserted, projectId)
                         # 07. attach projectId in response
                         responseObj["data"]["_id"] = projectId
                         # 08. set responseId to success
                         responseObj["responseId"] = 211
             except Exception as ex:
+                log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                 responseObj["message"] = str(ex)
         resp.media = responseObj

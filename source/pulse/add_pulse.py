@@ -1,3 +1,7 @@
+import inspect
+from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
 from bson.objectid import ObjectId
 import datetime
 import re
@@ -31,6 +35,7 @@ class AddPulseResource:
             validate(instance=requestObj, schema=validate_add_pulse_schema)
             success = True
         except Exception as ex:
+            log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
             message = ex.message
         return [success, message]
 
@@ -53,6 +58,7 @@ class AddPulseResource:
         ## or, pulseMetaId is None and fields exists
         ## or, pulseMetaId is not None and fields does not exists
         if (not pulseMetaId and len(fields) > 0) or (pulseMetaId and len(fields) == 0):
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "pulseMetaId and fields mismatch"))
             success = False
             message = "Invalid pulseMetaId"
         else:
@@ -61,6 +67,7 @@ class AddPulseResource:
                 try:
                     ObjectId(pulseMetaId)
                 except Exception as ex:
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
                     success = False
                     message = "Invalid pulseMetaId"
             if success:
@@ -94,11 +101,13 @@ class AddPulseResource:
         try:
             ObjectId(linkedProjectId)
         except Exception as ex:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
             success = False
             message = "Invalid linkedProjectId"
         if success:
             # check if linkedProjectId exists
             if dbpr.countDocumentsById(linkedProjectId) != 1:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "linkedProjectId does not exists"))
                 success = False
                 message = "Invalid linkedProjectId"
         return [success, message]
@@ -109,11 +118,13 @@ class AddPulseResource:
         try:
             ObjectId(linkedMilestoneId)
         except Exception as ex:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
             success = False
             message = "Invalid linkedMilestoneId"
         if success:
             # check if linkedMilestoneId exists and has linkedProjectId
             if dbm.countDocumentsById(linkedMilestoneId) != 1 or not dbm.hasThisLinkedProjectId(linkedProjectId, linkedMilestoneId):
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "linkedMilestoneId does not exist or does not jave linkedProjectId"))
                 success = False
                 message = "Invalid linkedMilestoneId"
         return [success, message]
@@ -132,6 +143,7 @@ class AddPulseResource:
                 if dbpr.hasThisMember(linkedProjectId, assigneeId): validAssignees.append(assigneeId)
                 else: invalidAssignees.append(assigneeId)
             except Exception as ex:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
                 invalidAssignees.append(assigneeId)
         return [validAssignees, invalidAssignees]
 
@@ -189,36 +201,43 @@ class AddPulseResource:
         # validate schema
         afterValidation = self.validateSchema(requestObj)
         if not afterValidation[0]:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "schema validation failed"))
             responseObj["responseId"] = 110
             responseObj["message"] = afterValidation[1]
         else:
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, "schema validation successful"))
             try:
                 # validate linkedProjectId
                 afterValidationLinkedProjectId = self.validateLinkedProjectId(requestObj["linkedProjectId"])
                 if not afterValidationLinkedProjectId[0]:
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid linkedProjectId"))
                     responseObj["responseId"] = 110
                     responseObj["message"] = afterValidationLinkedProjectId[1]
                 elif (not self.verifyPulseCreationAccess(requestObj["linkedProjectId"], req.params["kartoon-fapi-incoming"]["_id"])
                     and not dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"])):
                     # check if user has pulseCreationAccess or superuser access
+                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "does not have pulseCreationAccess nor is superuser"))
                     responseObj["responseId"] = 109
                     responseObj["message"] = "Unauthorized access"
                 else:
                     # validate linkedMilestoneId
                     afterValidationLinkedMilestoneId = self.validateLinkedMilestoneId(requestObj["linkedProjectId"], requestObj["linkedMilestoneId"])
                     if not afterValidationLinkedMilestoneId[0]:
+                        log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid linkedMilestoneId"))
                         responseObj["responseId"] = 110
                         responseObj["message"] = afterValidationLinkedMilestoneId[1]
                     else:
                         # validate timeline
                         afterValidationTimeline = self.validateTimeline(requestObj["timeline"])
                         if not afterValidationTimeline[0]:
+                            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid timeline"))
                             responseObj["responseId"] = 110
                             responseObj["message"] = afterValidationTimeline[1]
                         else:
                             # validate pulseMeta
                             afterValidationPulseMeta = self.validatePulseMetaId(requestObj["pulseMetaId"], requestObj["fields"])
                             if not afterValidationPulseMeta[0]:
+                                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid pulseMeta"))
                                 responseObj["responseId"] = 110
                                 responseObj["message"] = afterValidationPulseMeta[1]
                             else:
@@ -231,6 +250,8 @@ class AddPulseResource:
                                     responseObj["data"]["validAssignees"] = afterValidationAssignees[0]
                                     responseObj["data"]["invalidAssignees"] = afterValidationAssignees[1]
                                 else:
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "all validations passed"))
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "preparing data to insert"))
                                     # 01. get index for new pulse
                                     index = dbc.getNewPulseIndex()
                                     # 02. increment pulse counter
@@ -238,15 +259,19 @@ class AddPulseResource:
                                     # 03. prepare DataToBeInserted
                                     dataToBeInserted = self.prepareDataToBeInserted(index, requestObj, req.params["kartoon-fapi-incoming"]["_id"])
                                     # 04. insertPulse
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                                     pulseId = dbpu.insertPulse(dataToBeInserted)
                                     # 05. insertPulseIdToMilestone
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                                     dbm.insertPulseIdToMilestone(requestObj["linkedMilestoneId"], pulseId)
                                     # 06. for every assignee, insertAccessToPulse
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                                     self.insertAccessToPulseForAssignees(requestObj, pulseId)
                                     # 07. attach pulseId in response
                                     responseObj["data"]["_id"] = pulseId
                                     # 08. set responseId to success
                                     responseObj["responseId"] = 211
             except Exception as ex:
+                log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                 responseObj["message"] = str(ex)
         resp.media = responseObj

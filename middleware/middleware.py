@@ -1,8 +1,11 @@
+import inspect
+from utils.log import logger as log
+
 class Middleware:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    
+
     def process_request(self, req, resp):
         """Process the request before routing it.
         Note:
@@ -17,15 +20,14 @@ class Middleware:
         """
         # TODO: username and displayname should come from fapi
         req.params["kartoon-fapi-incoming"] = {}
-        req.params["kartoon-fapi-incoming"]["_id"] = "5dbc9f16078be5885dc22703"
+        req.params["kartoon-fapi-incoming"]["_id"] = "5dc921744f48dd693d0df03c"
         req.params["kartoon-fapi-incoming"]["username"] = "kartikey.bhardwaj"
         req.params["kartoon-fapi-incoming"]["displayname"] = "Kartikey Bhardwaj"
         req.params["kartoon-fapi-incoming"]["employeeid"] = "772780"
-        if req.method == "GET":
-            print("request params:", req.params)
+        if req.method == "GET" or req.method == "POST":
+            log.info((__file__.split("/")[-1], inspect.currentframe().f_code.co_name, req.path, "params", str(req.params)))
         if req.method == "POST":
-            print("request params:", req.params)
-            print("request media:", req.media)
+            log.info((__file__.split("/")[-1], inspect.currentframe().f_code.co_name, req.path, "media", str(req.media)))
 
     def process_response(self, req, resp, resource, req_succeeded):
         """Post-processing of the response (after routing).
@@ -40,4 +42,4 @@ class Middleware:
                 otherwise False.
         """
         if req.method == "POST":
-            print("response:", resp.media)
+            log.info((__file__.split("/")[-1], inspect.currentframe().f_code.co_name, "media", str(resp.media)))
