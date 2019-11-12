@@ -26,6 +26,9 @@ from source.milestone.get_meta_milestones import GetMetaMilestonesResource
 from source.pulse.get_meta_pulses import GetMetaPulsesResource
 from source.pulse.get_my_pulses import GetMyPulsesResource
 from source.pulse.update_pulse_timeline import UpdatePulseTimelineResource
+from source.location.get_locations import GetLocationsResource
+from source.location.update_base_location import UpdateBaseLocationResource
+from source.user.add_travel import AddTravelResource
 
 cors = CORS(allow_origins_list = ["http://localhost:4200"],
             allow_credentials_all_origins = True,
@@ -59,5 +62,8 @@ api.add_route("/get-meta-milestones", GetMetaMilestonesResource())
 api.add_route("/get-meta-pulses", GetMetaPulsesResource())
 api.add_route("/get-my-pulses", GetMyPulsesResource())
 api.add_route("/update-pulse-timeline", UpdatePulseTimelineResource())
+api.add_route("/get-locations", GetLocationsResource())
+api.add_route("/update-base-location", UpdateBaseLocationResource())
+api.add_route("/add-travel", AddTravelResource())
 
 log.info("Circuit is up and running..")
