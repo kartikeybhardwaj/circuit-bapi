@@ -32,6 +32,10 @@ class DBLocation:
     def getAllLocations(self) -> dict:
         result = self.__db.locations.find({
             "isActive": True
+        }, {
+            "_id": 1,
+            "name": 1,
+            "meta": 1
         })
         return json.loads(dumps(result))
 

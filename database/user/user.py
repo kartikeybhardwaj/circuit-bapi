@@ -206,3 +206,40 @@ class DBUser:
         }, {
                 "j.milestoneId": ObjectId(milestoneId)
         }]).modified_count == 1
+
+    def updateLocationId(self, userId: str, locationId: str) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId)
+        }, {
+            "$set": {
+                "baseLocation": ObjectId(locationId)
+            }
+        }).modified_count == 1
+
+    def insertTravel(self, userId: str, locationId: str, timeline: dict) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId)
+        }, {
+            "$push": {
+                "otherLocations": {
+                    "locationId": ObjectId(locationId),
+                    "timeline": timeline
+                }
+            }
+        }).modified_count == 1
+
+    def getCollisionLocationId(self, userId: str, timeline: dict) -> dict:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "otherLocations.timeline.begin": {
+                "$lt": timeline["end"]
+            },
+            "otherLocations.timeline.end": {
+                "$gt": timeline["begin"]
+            }
+        }, {
+            "_id": 0,
+            "otherLocations.locationId": 1
+        })
+        result = json.loads(dumps(result))
+        return result["otherLocations"][0]["locationId"]["$oid"] if result else None
