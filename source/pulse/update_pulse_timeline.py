@@ -176,12 +176,13 @@ class UpdatePulseTimelineResource:
                                 responseObj["message"] = afterValidationTimeline[1]
                             else:
                                 # verify if user has access to update this pulse
-                                if not self.verifyAccess(req.params["kartoon-fapi-incoming"]["_id"], requestObj["projectId"]):
-                                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "user is not superuser"))
+                                if (not self.verifyAccess(req.params["kartoon-fapi-incoming"]["_id"], requestObj["projectId"])
+                                    and not dbu.checkIfUserIsSuperuser(req.params["kartoon-fapi-incoming"]["_id"])):
+                                    log.warn((thisFilename, inspect.currentframe().f_code.co_name, "user does not have access"))
                                     responseObj["responseId"] = 109
                                     responseObj["message"] = "Unauthorized access"
                                 else:
-                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "user is superuser"))
+                                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "user has access"))
                                     # update pulse timeline
                                     log.info((thisFilename, inspect.currentframe().f_code.co_name, "updating data"))
                                     dbpu.updatePulseTimeline(requestObj["pulseId"], requestObj["timeline"])
