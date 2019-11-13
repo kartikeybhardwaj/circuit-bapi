@@ -94,17 +94,17 @@ class AddTravelResource:
                     responseObj["responseId"] = 110
                     responseObj["message"] = afterValidationTimeline[1]
                 else:
-                    log.info((thisFilename, inspect.currentframe().f_code.co_name, "all validations passed"))
                     # validation collision of dates
-                    overlappedLocationId = dbu.getCollisionLocationId(req.params["kartoon-fapi-incoming"]["_id"], requestObj["timeline"])
+                    overlappedLocationId = dbu.getCollisionTravelLocationId(req.params["kartoon-fapi-incoming"]["_id"], requestObj["timeline"])
                     if overlappedLocationId:
                         log.warn((thisFilename, inspect.currentframe().f_code.co_name, "timeline overlap"))
                         responseObj["responseId"] = 110
                         responseObj["data"]["locationId"] = overlappedLocationId
                         responseObj["message"] = "There is overlap with another location"
                     else:
+                        log.info((thisFilename, inspect.currentframe().f_code.co_name, "all validations passed"))
                         try:
-                            # insert travel                        
+                            # insert travel
                             log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
                             dbu.insertTravel(req.params["kartoon-fapi-incoming"]["_id"], requestObj["locationId"], requestObj["timeline"])
                             responseObj["responseId"] = 211
