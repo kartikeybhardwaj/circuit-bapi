@@ -228,7 +228,19 @@ class DBUser:
             }
         }).modified_count == 1
 
-    def getCollisionLocationId(self, userId: str, timeline: dict) -> dict:
+    def insertNonAvailability(self, userId: str, reason: str, timeline: dict) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId)
+        }, {
+            "$push": {
+                "nonAvailability": {
+                    "reason": reason,
+                    "timeline": timeline
+                }
+            }
+        }).modified_count == 1
+
+    def getCollisionTravelLocationId(self, userId: str, timeline: dict) -> str:
         result = self.__db.users.find_one({
             "_id": ObjectId(userId),
             "otherLocations.timeline.begin": {
@@ -243,3 +255,19 @@ class DBUser:
         })
         result = json.loads(dumps(result))
         return result["otherLocations"][0]["locationId"]["$oid"] if result else None
+
+    def getCollisionNonAvailabilityReason(self, userId: str, timeline: str) -> str:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "nonAvailability.timeline.begin": {
+                "$lt": timeline["end"]
+            },
+            "nonAvailability.timeline.end": {
+                "$gt": timeline["begin"]
+            }
+        }, {
+            "_id": 0,
+            "nonAvailability.reason": 1
+        })
+        result = json.loads(dumps(result))
+        return result["nonAvailability"][0]["reason"] if result else None
