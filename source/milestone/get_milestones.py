@@ -138,6 +138,8 @@ class GetMilestonesResource:
             milestone["pulsesList"] = [pl["$oid"] for pl in milestone["pulsesList"]]
             milestone["milestoneMetaId"] = milestone["milestoneMetaId"]["$oid"]
             milestone["linkedProjectId"] = milestone["linkedProjectId"]["$oid"]
+            milestone["timeline"]["begin"] = milestone["timeline"]["begin"]["$date"]
+            milestone["timeline"]["end"] = milestone["timeline"]["end"]["$date"]
             if milestone["meta"]["addedBy"]:
                 milestone["meta"]["addedBy"] = milestone["meta"]["addedBy"]["$oid"]
             if milestone["meta"]["addedOn"]:

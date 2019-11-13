@@ -121,6 +121,8 @@ class AddMilestoneResource:
         dataToBeInserted["title"] = requestObj["title"]
         dataToBeInserted["description"] = requestObj["description"]
         dataToBeInserted["timeline"] = requestObj["timeline"]
+        dataToBeInserted["timeline"]["begin"] = utils.getDateFromUTCString(dataToBeInserted["timeline"]["begin"])
+        dataToBeInserted["timeline"]["end"] = utils.getDateFromUTCString(dataToBeInserted["timeline"]["end"])
         dataToBeInserted["milestoneMetaId"] = ObjectId(requestObj["milestoneMetaId"])
         dataToBeInserted["fields"] = requestObj["fields"]
         dataToBeInserted["pulsesList"] = []

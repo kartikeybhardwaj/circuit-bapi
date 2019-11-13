@@ -57,6 +57,8 @@ class GetMyPulsesResource:
         for pulse in pulses:
             pulse["_id"] = pulse["_id"]["$oid"]
             pulse["pulseMetaId"] = pulse["pulseMetaId"]["$oid"]
+            pulse["timeline"]["begin"] = pulse["timeline"]["begin"]["$date"]
+            pulse["timeline"]["end"] = pulse["timeline"]["end"]["$date"]
             pulse["linkedProjectId"] = pulse["linkedProjectId"]["$oid"]
             pulse["linkedMilestoneId"] = pulse["linkedMilestoneId"]["$oid"]
             pulse["assignees"] = [assignee["$oid"] for assignee in pulse["assignees"]]

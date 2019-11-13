@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-log_path = "/Users/kartikeybhardwaj/Desktop/circuit-logs/circuit.log"
+log_path = "/Users/kartikeybhardwaj/Desktop/circuit-logs/circuit-bapi.log"
 
 handler = RotatingFileHandler(log_path, maxBytes=5242880, backupCount=10)
 formatter = logging.Formatter('%(asctime)s %(levelname)s : %(message)s')

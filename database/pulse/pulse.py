@@ -4,6 +4,9 @@ from bson.objectid import ObjectId
 import json
 import datetime
 
+from utils.utils import Utils
+utils = Utils()
+
 class DBPulse:
 
     def __init__(self, *args, **kwargs):
@@ -49,6 +52,24 @@ class DBPulse:
             "linkedProjectId": 1,
             "linkedMilestoneId": 1,
             "meta": 1
+        })
+        return json.loads(dumps(result))
+
+    def getLesserPulsesByIds(self, pulseIds: "list of ObjectId") -> dict:
+        pulseIds = list(map(ObjectId, pulseIds))
+        result = self.__db.pulses.find({
+            "_id": {
+                "$in": pulseIds
+            },
+            "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "color": 1,
+            "timeline": 1,
+            "linkedProjectId": 1,
+            "linkedMilestoneId": 1
         })
         return json.loads(dumps(result))
 
@@ -109,6 +130,9 @@ class DBPulse:
             "_id": ObjectId(pulseId)
         }, {
             "$set": {
-                "timeline": timeline
+                "timeline": {
+                    "begin": utils.getDateFromUTCString(timeline["begin"]),
+                    "end": utils.getDateFromUTCString(timeline["end"])
+                }
             }
         }).modified_count == 1

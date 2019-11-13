@@ -15,9 +15,15 @@ class GetUserResource:
 
     def convertMongoDBObjectsToObjects(self, user: "list of dict") -> "list of dict":
         user["_id"] = user["_id"]["$oid"]
-        user["baseLocation"] = user["baseLocation"]["$oid"]
+        if user["baseLocation"]:
+            user["baseLocation"] = user["baseLocation"]["$oid"]
         for otherLocation in user["otherLocations"]:
             otherLocation["locationId"] = otherLocation["locationId"]["$oid"]
+            otherLocation["timeline"]["begin"] = otherLocation["timeline"]["begin"]["$date"]
+            otherLocation["timeline"]["end"] = otherLocation["timeline"]["end"]["$date"]
+        for nonAvailability in user["nonAvailability"]:
+            nonAvailability["timeline"]["begin"] = nonAvailability["timeline"]["begin"]["$date"]
+            nonAvailability["timeline"]["end"] = nonAvailability["timeline"]["end"]["$date"]
         for project in user["access"]["projects"]:
             project["projectId"] = project["projectId"]["$oid"]
             for milestone in project["milestones"]:

@@ -74,6 +74,18 @@ class DBMilestone:
             "fields": 1
         })["fields"]
 
+    def getAllMilestones(self) -> dict:
+        result = self.__db.milestones.find({
+            "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "timeline": 1,
+            "linkedProjectId": 1
+        })
+        return json.loads(dumps(result))
+
     def getActiveMilesonteIdsByIds(self, milestoneIds: "list of str") -> "list of dict":
         milestoneIds = list(map(ObjectId, milestoneIds))
         result = self.__db.milestones.find({

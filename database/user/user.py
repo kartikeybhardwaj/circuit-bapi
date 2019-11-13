@@ -4,7 +4,8 @@ from bson.objectid import ObjectId
 import json
 import datetime
 
-from database.counter.counter import DBCounter
+from utils.utils import Utils
+utils = Utils()
 
 class DBUser:
 
@@ -223,7 +224,10 @@ class DBUser:
             "$push": {
                 "otherLocations": {
                     "locationId": ObjectId(locationId),
-                    "timeline": timeline
+                    "timeline": {
+                        "begin": timeline["begin"],
+                        "end": timeline["end"]
+                    }
                 }
             }
         }).modified_count == 1
@@ -235,12 +239,17 @@ class DBUser:
             "$push": {
                 "nonAvailability": {
                     "reason": reason,
-                    "timeline": timeline
+                    "timeline": {
+                        "begin": timeline["begin"],
+                        "end": timeline["end"]
+                    }
                 }
             }
         }).modified_count == 1
 
     def getCollisionTravelLocationId(self, userId: str, timeline: dict) -> str:
+        timeline["begin"] = utils.getDateFromUTCString(timeline["begin"])
+        timeline["end"] = utils.getDateFromUTCString(timeline["end"])
         result = self.__db.users.find_one({
             "_id": ObjectId(userId),
             "otherLocations.timeline.begin": {
@@ -256,7 +265,9 @@ class DBUser:
         result = json.loads(dumps(result))
         return result["otherLocations"][0]["locationId"]["$oid"] if result else None
 
-    def getCollisionNonAvailabilityReason(self, userId: str, timeline: str) -> str:
+    def getCollisionNonAvailabilityReason(self, userId: str, timeline: dict) -> str:
+        timeline["begin"] = utils.getDateFromUTCString(timeline["begin"])
+        timeline["end"] = utils.getDateFromUTCString(timeline["end"])
         result = self.__db.users.find_one({
             "_id": ObjectId(userId),
             "nonAvailability.timeline.begin": {
