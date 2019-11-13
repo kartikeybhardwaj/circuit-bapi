@@ -1,9 +1,12 @@
 # Circuit Backend API
 
+### python3 -m venv env
+### source enc/bin/activate
+### deactivate
+
 ### pip3 install falcon
 ### pip3 install falcon-cors
 ### pip3 install pymongo
-### pip3 install pyjwt
 ### pip3 install jsonschema
 ### pip3 install gunicorn
 
