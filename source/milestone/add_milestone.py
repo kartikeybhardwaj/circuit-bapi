@@ -15,6 +15,7 @@ from database.user.user import DBUser
 from database.role.role import DBRole
 from database.counter.counter import DBCounter
 from database.project.project import DBProject
+from database.location.location import DBLocation
 from database.milestone.milestone import DBMilestone
 
 utils = Utils()
@@ -23,6 +24,7 @@ dbr = DBRole()
 dbc = DBCounter()
 dbpr = DBProject()
 dbm = DBMilestone()
+dbl = DBLocation()
 
 class AddMilestoneResource:
 
@@ -49,6 +51,23 @@ class AddMilestoneResource:
             message = "Invalid timeline"
         return [success, message]
 
+    def validateLocationId(self, locationId: str) -> [bool, str]:
+        success = True
+        message = ""
+        try:
+            ObjectId(locationId)
+        except Exception as ex:
+            log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
+            success = False
+            message = "Invalid locationId"
+        if success:
+            # check if locationId exists
+            if dbl.countDocumentsById(locationId) != 1:
+                log.warn((thisFilename, inspect.currentframe().f_code.co_name, "locationId does not exists"))
+                success = False
+                message = "Invalid locationId"
+        return [success, message]
+
     def validateMilestoneMetaId(self, milestoneMetaId: "str or None", fields: "list of dict") -> [bool, str]:
         success = True
         message = ""
@@ -68,29 +87,29 @@ class AddMilestoneResource:
                     log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
                     success = False
                     message = "Invalid milestoneMetaId"
-            if success:
-                # prepare fieldsDict map
-                fieldsDict = {}
-                for field in fields:
-                    fieldsDict[field["key"]] = field["value"]
-                # get dbFields using projectMetaId
-                dbFields = dbm.getFieldsById(milestoneMetaId)
-                # validate fields
-                if len(fieldsDict) == len(dbFields):
-                    for dbField in dbFields:
-                        if dbField["key"] in fieldsDict:
-                            if dbField["valueType"] == "select":
-                                if not fieldsDict[dbField["key"]] in dbField["value"]:
-                                    success = False
-                                    message = "Invalid value for " + dbField["key"]
-                                    break
-                        else:
-                            success = False
-                            message = "Missing " + dbField["key"]
-                            break
-                else:
-                    success = False
-                    message = "Invalid fields count"
+                if success:
+                    # prepare fieldsDict map
+                    fieldsDict = {}
+                    for field in fields:
+                        fieldsDict[field["key"]] = field["value"]
+                    # get dbFields using projectMetaId
+                    dbFields = dbm.getFieldsById(milestoneMetaId)
+                    # validate fields
+                    if len(fieldsDict) == len(dbFields):
+                        for dbField in dbFields:
+                            if dbField["key"] in fieldsDict:
+                                if dbField["valueType"] == "select":
+                                    if not fieldsDict[dbField["key"]] in dbField["value"]:
+                                        success = False
+                                        message = "Invalid value for " + dbField["key"]
+                                        break
+                            else:
+                                success = False
+                                message = "Missing " + dbField["key"]
+                                break
+                    else:
+                        success = False
+                        message = "Invalid fields count"
         return [success, message]
 
     def validateLinkedProjectId(self, linkedProjectId: str) -> [bool, str]:
@@ -142,6 +161,7 @@ class AddMilestoneResource:
         timeline: dict
             begin: datetime
             end: datetime
+        locationId: str
         milestoneMetaId: str
         fields: list
         linkedProjectId: str
@@ -181,30 +201,36 @@ class AddMilestoneResource:
                         responseObj["responseId"] = 110
                         responseObj["message"] = afterValidationTimeline[1]
                     else:
-                        # validate milestoneMeta
-                        afterValidationMilestoneMeta = self.validateMilestoneMetaId(requestObj["milestoneMetaId"], requestObj["fields"])
-                        if not afterValidationMilestoneMeta[0]:
+                        # validate loationId
+                        afterValidationLocationId = self.validateLocationId(requestObj["locationId"])
+                        if not afterValidationLocationId[0]:
                             responseObj["responseId"] = 110
-                            responseObj["message"] = afterValidationMilestoneMeta[1]
+                            responseObj["message"] = afterValidationLocationId[1]
                         else:
-                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "all validations passed"))
-                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "preparing data to insert"))
-                            # 01. get index for new milestone
-                            index = dbc.getNewMilestoneIndex()
-                            # 02. increment milestone counter
-                            dbc.incrementMilestoneIndex()
-                            # 03. prepare DataToBeInserted
-                            dataToBeInserted = self.prepareDataToBeInserted(index, requestObj, req.params["kartoon-fapi-incoming"]["_id"])
-                            # 04. insertMilestone
-                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
-                            milestoneId = dbm.insertMilestone(dataToBeInserted)
-                            # 05. insertMilestoneIdToProject
-                            log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
-                            dbpr.insertMilestoneIdToProject(requestObj["linkedProjectId"], milestoneId)
-                            # 06. attach milestoneId in response
-                            responseObj["data"]["_id"] = milestoneId
-                            # 07. set responseId to success
-                            responseObj["responseId"] = 211
+                            # validate milestoneMeta
+                            afterValidationMilestoneMeta = self.validateMilestoneMetaId(requestObj["milestoneMetaId"], requestObj["fields"])
+                            if not afterValidationMilestoneMeta[0]:
+                                responseObj["responseId"] = 110
+                                responseObj["message"] = afterValidationMilestoneMeta[1]
+                            else:
+                                log.info((thisFilename, inspect.currentframe().f_code.co_name, "all validations passed"))
+                                log.info((thisFilename, inspect.currentframe().f_code.co_name, "preparing data to insert"))
+                                # 01. get index for new milestone
+                                index = dbc.getNewMilestoneIndex()
+                                # 02. increment milestone counter
+                                dbc.incrementMilestoneIndex()
+                                # 03. prepare DataToBeInserted
+                                dataToBeInserted = self.prepareDataToBeInserted(index, requestObj, req.params["kartoon-fapi-incoming"]["_id"])
+                                # 04. insertMilestone
+                                log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
+                                milestoneId = dbm.insertMilestone(dataToBeInserted)
+                                # 05. insertMilestoneIdToProject
+                                log.info((thisFilename, inspect.currentframe().f_code.co_name, "inserting data"))
+                                dbpr.insertMilestoneIdToProject(requestObj["linkedProjectId"], milestoneId)
+                                # 06. attach milestoneId in response
+                                responseObj["data"]["_id"] = milestoneId
+                                # 07. set responseId to success
+                                responseObj["responseId"] = 211
             except Exception as ex:
                 log.error((thisFilename, inspect.currentframe().f_code.co_name), exc_info=True)
                 responseObj["message"] = str(ex)
