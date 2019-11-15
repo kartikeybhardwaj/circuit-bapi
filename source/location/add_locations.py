@@ -32,7 +32,9 @@ class AddLocationsResource:
 
     """
     REQUEST:
-        "names": list of str
+        "names": list of dict
+            "city": str
+            "country": str
     """
     def on_post(self, req, resp):
         requestObj = req.media
@@ -75,7 +77,7 @@ class AddLocationsResource:
                     alreadyExists = []
                     for i in range(len(requestObj["names"])):
                         # 01. check if this location already exist
-                        existingLocId = dbl.getLocationIdByName(requestObj["names"][i])
+                        existingLocId = dbl.getLocationIdByCityCountry(requestObj["names"][i]["city"], requestObj["names"][i]["country"])
                         if not existingLocId:
                             # if not
                             dataToBeInserted.append({})
@@ -85,7 +87,8 @@ class AddLocationsResource:
                             dbc.incrementLocationIndex()
                             # 01. 03. prepare dataToBeInserted
                             dataToBeInserted[i]["index"] = index
-                            dataToBeInserted[i]["name"] = requestObj["names"][i]
+                            dataToBeInserted[i]["city"] = requestObj["names"][i]["city"]
+                            dataToBeInserted[i]["country"] = requestObj["names"][i]["country"]
                             dataToBeInserted[i].update(extraData)
                         else:
                             # if yes
