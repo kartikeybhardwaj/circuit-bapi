@@ -40,13 +40,12 @@ class AddPulseResource:
         return [success, message]
 
     def validateTimeline(self, timeline: dict) -> [bool, str]:
-        # TODO: this timeline should exists within the timeline of milestone
         success = True
         message = ""
         tbegin = utils.getDateFromUTCString(timeline["begin"])
         tend = utils.getDateFromUTCString(timeline["end"])
-        # end should be greater than begin and end should be greater than now
-        if not (tend > tbegin and tend > datetime.datetime.utcnow()):
+        # end should be greater than begin
+        if not (tend > tbegin):
             success = False
             message = "Invalid timeline"
         return [success, message]

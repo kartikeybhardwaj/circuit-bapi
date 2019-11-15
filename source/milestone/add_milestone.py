@@ -42,11 +42,10 @@ class AddMilestoneResource:
     def validateTimeline(self, timeline: dict) -> [bool, str]:
         success = True
         message = ""
-        utils = Utils()
         tbegin = utils.getDateFromUTCString(timeline["begin"])
         tend = utils.getDateFromUTCString(timeline["end"])
         # end should be greater than begin and end should be greater than now
-        if not (tend > tbegin and tend > datetime.datetime.utcnow()):
+        if not tend > tbegin:
             success = False
             message = "Invalid timeline"
         return [success, message]
@@ -139,6 +138,7 @@ class AddMilestoneResource:
         dataToBeInserted["isActive"] = True
         dataToBeInserted["title"] = requestObj["title"]
         dataToBeInserted["description"] = requestObj["description"]
+        dataToBeInserted["locationId"] = ObjectId(requestObj["locationId"])
         dataToBeInserted["timeline"] = requestObj["timeline"]
         dataToBeInserted["timeline"]["begin"] = utils.getDateFromUTCString(dataToBeInserted["timeline"]["begin"])
         dataToBeInserted["timeline"]["end"] = utils.getDateFromUTCString(dataToBeInserted["timeline"]["end"])
