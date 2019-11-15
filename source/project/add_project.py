@@ -74,29 +74,29 @@ class AddProjectResource:
                     log.warn((thisFilename, inspect.currentframe().f_code.co_name, "invalid object id"))
                     success = False
                     message = "Invalid projectMetaId"
-            if success:
-                # prepare fieldsDict map
-                fieldsDict = {}
-                for field in fields:
-                    fieldsDict[field["key"]] = field["value"]
-                # get dbFields using projectMetaId
-                dbFields = dbpr.getFieldsById(projectMetaId)
-                # validate fields
-                if len(fieldsDict) == len(dbFields):
-                    for dbField in dbFields:
-                        if dbField["key"] in fieldsDict:
-                            if dbField["valueType"] == "select":
-                                if not fieldsDict[dbField["key"]] in dbField["value"]:
-                                    success = False
-                                    message = "Invalid value for " + dbField["key"]
-                                    break
-                        else:
-                            success = False
-                            message = "Missing " + dbField["key"]
-                            break
-                else:
-                    success = False
-                    message = "Invalid fields count"
+                if success:
+                    # prepare fieldsDict map
+                    fieldsDict = {}
+                    for field in fields:
+                        fieldsDict[field["key"]] = field["value"]
+                    # get dbFields using projectMetaId
+                    dbFields = dbpr.getFieldsById(projectMetaId)
+                    # validate fields
+                    if len(fieldsDict) == len(dbFields):
+                        for dbField in dbFields:
+                            if dbField["key"] in fieldsDict:
+                                if dbField["valueType"] == "select":
+                                    if not fieldsDict[dbField["key"]] in dbField["value"]:
+                                        success = False
+                                        message = "Invalid value for " + dbField["key"]
+                                        break
+                            else:
+                                success = False
+                                message = "Missing " + dbField["key"]
+                                break
+                    else:
+                        success = False
+                        message = "Invalid fields count"
         return [success, message]
 
     def prepareDataToBeInserted(self, index: int, requestObj: dict, userId: str) -> dict:
