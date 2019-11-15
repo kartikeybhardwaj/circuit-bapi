@@ -4,13 +4,13 @@ validate_add_meta_project_schema = {
         "title": {
             "type": "string",
             "pattern": "^[0-9a-zA-Z\-\ ]*$",
-            "minLength": 4,
-            "maxLength": 20
+            "minLength": 2,
+            "maxLength": 200
         },
         "description": {
             "type": "string",
             "minLength": 4,
-            "maxLength": 40
+            "maxLength": 400
         },
         "fields": {
             "type": "array",
@@ -20,8 +20,8 @@ validate_add_meta_project_schema = {
                     "key": {
                         "type": "string",
                         "pattern": "^[0-9a-zA-Z\-\ ]*$",
-                        "minLength": 4,
-                        "maxLength": 20
+                        "minLength": 2,
+                        "maxLength": 200
                     },
                     "valueType": {
                         "type": "string",
@@ -35,17 +35,17 @@ validate_add_meta_project_schema = {
                             "type": "string",
                             "pattern": "^[0-9a-zA-Z\-\ ]*$",
                             "minLength": 0,
-                            "maxLength": 20
+                            "maxLength": 200
                         }, {
                             "type": "array",
                             "items": {
                                 "type": "string",
                                 "pattern": "^[0-9a-zA-Z\-\ ]*$",
                                 "minLength": 1,
-                                "maxLength": 20
+                                "maxLength": 200
                             },
                             "minItems": 1,
-                            "maxItems": 5,
+                            "maxItems": 20,
                             "uniqueItems": True
                         }]
                     }
@@ -58,7 +58,7 @@ validate_add_meta_project_schema = {
                 "additionalProperties": False
             },
             "minItems": 1,
-            "maxItems": 5,
+            "maxItems": 10,
             "uniqueItems": True
         }
     },

@@ -4,8 +4,8 @@ validate_add_non_availability_schema = {
         "reason": {
             "type": "string",
             "pattern": "^[0-9a-zA-Z\.\_\ ]*$",
-            "minLength": 3,
-            "maxLength": 80
+            "minLength": 2,
+            "maxLength": 400
         },
         "timeline": {
             "type": "object",

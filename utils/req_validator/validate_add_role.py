@@ -4,13 +4,13 @@ validate_add_role_schema = {
         "title": {
             "type": "string",
             "pattern": "^[0-9a-zA-Z\-\ ]*$",
-            "minLength": 4,
-            "maxLength": 20
+            "minLength": 2,
+            "maxLength": 200
         },
         "description": {
             "type": "string",
             "minLength": 4,
-            "maxLength": 40
+            "maxLength": 400
         },
         "canModifyUsersRole": {
             "type": "boolean"

@@ -4,13 +4,13 @@ validate_add_milestone_schema = {
         "title": {
             "type": "string",
             "pattern": "^[0-9a-zA-Z\-\ ]*$",
-            "minLength": 4,
-            "maxLength": 20
+            "minLength": 2,
+            "maxLength": 200
         },
         "description": {
             "type": "string",
             "minLength": 4,
-            "maxLength": 40
+            "maxLength": 400
         },
         "timeline": {
             "type": "object",
@@ -29,6 +29,12 @@ validate_add_milestone_schema = {
                 "end"
             ],
             "additionalProperties": False
+        },
+        "locationId": {
+            "type": "string",
+            "pattern": "^[0-9a-z]*$",
+            "minLength": 24,
+            "maxLength": 24
         },
         "milestoneMetaId": {
             "type": [
@@ -73,6 +79,7 @@ validate_add_milestone_schema = {
         "title",
         "description",
         "timeline",
+        "locationId",
         "milestoneMetaId",
         "fields",
         "linkedProjectId"
