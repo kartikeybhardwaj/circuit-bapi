@@ -12,9 +12,12 @@ class GetLocationsResource():
 
     def idMapForLocationIds(self, locations: "list of dict") -> dict:
         idMap = {}
-        # 01. get name and map it to _id from locations
+        # 01. get city and country and map it to _id from locations
         for location in locations:
-            idMap[location["_id"]["$oid"]] = location["name"]
+            idMap[location["_id"]["$oid"]] = [
+                location["city"],
+                location["country"]
+            ]
         return idMap
 
     def idMapForUserIds(self, locations: "list of dict") -> dict:

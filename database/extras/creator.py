@@ -117,7 +117,8 @@ class DBCreator:
             self.__db.roles.insert_many(roles)
             locations = [{
                 "index": 1,
-                "name": "Mysuru, India",
+                "city": "Mysuru",
+                "country": "India",
                 "isActive": True,
                 "meta": {
                     "addedBy": None,
@@ -127,7 +128,8 @@ class DBCreator:
                 }
             }, {
                 "index": 2,
-                "name": "Bengaluru, India",
+                "city": "Bengaluru",
+                "country": "India",
                 "isActive": True,
                 "meta": {
                     "addedBy": None,
