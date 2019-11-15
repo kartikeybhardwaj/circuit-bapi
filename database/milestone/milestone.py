@@ -20,6 +20,13 @@ class DBMilestone:
     def getAllMilestones(self) -> dict:
         result = self.__db.milestones.find({
             "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "timeline": 1,
+            "locationId": 1,
+            "linkedProjectId": 1
         })
         return json.loads(dumps(result))
 
@@ -36,6 +43,7 @@ class DBMilestone:
             "title": 1,
             "description": 1,
             "timeline": 1,
+            "locationId": 1,
             "pulsesList": 1,
             "milestoneMetaId": 1,
             "fields": 1,

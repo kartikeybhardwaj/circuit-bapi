@@ -21,6 +21,7 @@ class GetAllMilestonesResource:
             milestone["_id"] = milestone["_id"]["$oid"]
             milestone["timeline"]["begin"] = milestone["timeline"]["begin"]["$date"]
             milestone["timeline"]["end"] = milestone["timeline"]["end"]["$date"]
+            milestone["locationId"] = milestone["locationId"]["$oid"]
             milestone["linkedProjectId"] = milestone["linkedProjectId"]["$oid"]
         return milestones
 
