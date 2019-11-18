@@ -1,5 +1,8 @@
 import inspect
 from utils.log import logger as log
+thisFilename = __file__.split("/")[-1]
+
+import json
 
 class Middleware:
 
@@ -18,16 +21,20 @@ class Middleware:
             resp: Response object that will be routed to
                 the on_* responder.
         """
-        # TODO: username and displayname should come from fapi
-        req.params["kartoon-fapi-incoming"] = {}
-        req.params["kartoon-fapi-incoming"]["_id"] = "5dce4428bec2eefcdec0f4d4"
-        req.params["kartoon-fapi-incoming"]["username"] = "kartikey.bhardwaj"
-        req.params["kartoon-fapi-incoming"]["displayname"] = "Kartikey Bhardwaj"
-        req.params["kartoon-fapi-incoming"]["employeeid"] = "772780"
         if req.method == "GET" or req.method == "POST":
-            log.info((__file__.split("/")[-1], inspect.currentframe().f_code.co_name, req.path, "params", str(req.params)))
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, req.path, "params", str(req.params)))
         if req.method == "POST":
-            log.info((__file__.split("/")[-1], inspect.currentframe().f_code.co_name, req.path, "media", str(req.media)))
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, req.path, "media", str(req.media)))
+        if req.method != "OPTIONS":
+            if "kartoon-fapi-incoming" not in req.params:
+                resp.media = {
+                    "responseId": 103,
+                    "message": "Invalid request"
+                }
+                # exit request
+                resp.complete = True
+            else:
+                req.params["kartoon-fapi-incoming"] = json.loads(req.params["kartoon-fapi-incoming"])
 
     def process_response(self, req, resp, resource, req_succeeded):
         """Post-processing of the response (after routing).
@@ -42,4 +49,4 @@ class Middleware:
                 otherwise False.
         """
         if req.method == "POST":
-            log.info((__file__.split("/")[-1], inspect.currentframe().f_code.co_name, "media", str(resp.media)))
+            log.info((thisFilename, inspect.currentframe().f_code.co_name, "media", str(resp.media)))
