@@ -3,6 +3,7 @@ from utils.log import logger as log
 thisFilename = __file__.split("/")[-1]
 
 import json
+from constants.secret import FapiToBapiSecret
 
 class Middleware:
 
@@ -35,6 +36,13 @@ class Middleware:
                 resp.complete = True
             else:
                 req.params["kartoon-fapi-incoming"] = json.loads(req.params["kartoon-fapi-incoming"])
+                if req.params["kartoon-fapi-incoming"]["secretKey"] != FapiToBapiSecret:
+                    resp.media = {
+                        "responseId": 109,
+                        "message": "Unauthorized access"
+                    }
+                    # exit request
+                    resp.complete = True
 
     def process_response(self, req, resp, resource, req_succeeded):
         """Post-processing of the response (after routing).

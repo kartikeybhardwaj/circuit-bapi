@@ -1,0 +1,1 @@
+FapiToBapiSecret = "kartoon-secret"
