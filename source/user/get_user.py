@@ -37,6 +37,11 @@ class GetUserResource:
             user["meta"]["lastSeen"] = user["meta"]["lastSeen"]["$date"]
         return user
 
+    """
+    REQUEST:
+        "username": str
+        "displayname": str
+    """
     def on_get(self, req, resp):
         responseObj = {
             "responseId": 111,

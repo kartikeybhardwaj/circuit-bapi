@@ -45,4 +45,7 @@ mongo "mongodb://kart:oon@127.0.0.1:27017/circuit"
 109 - Unauthorized access
 108 - Already exists
 107 - Does not exists
+103 - Invalid request
+102 - Invalid token
+101 - Token expired
 ```
