@@ -33,7 +33,7 @@ from source.user.add_non_availability import AddNonAvailabilityResource
 from source.milestone.get_all_milestones import GetAllMilestonesResource
 from source.pulse.get_user_pulses import GetUserPulsesResource
 
-cors = CORS(allow_origins_list=["http://localhost:4200", "http://localhost:3100"],
+cors = CORS(allow_origins_list=["http://localhost:3100"],
             allow_credentials_all_origins=True,
             allow_all_headers=True,
             allow_all_methods=True)
