@@ -106,6 +106,15 @@ class DBMilestone:
         })
         return json.loads(dumps(result))
 
+    def getLocationId(self, milestoneId: str) -> str:
+        result = self.__db.milestones.find_one({
+            "_id": ObjectId(milestoneId)
+        }, {
+            "_id": 0,
+            "locationId": 1
+        })
+        return json.loads(dumps(result))["locationId"]["$oid"]
+
     def hasThisLinkedProjectId(self, projectId: str, milestoneId: str) -> bool:
         return self.__db.milestones.count_documents({
             "_id": ObjectId(milestoneId),

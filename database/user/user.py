@@ -120,6 +120,15 @@ class DBUser:
         })
         return json.loads(dumps(result))
 
+    def getBaseLocationByUserId(self, userId: str) -> str:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId)
+        }, {
+            "_id": 0,
+            "baseLocation": 1
+        })
+        return result["baseLocation"]["$oid"] if result["baseLocation"] else None
+
     def updateUserToSuperuser(self, username: str) -> bool:
         return self.__db.users.update_one({
             "username": username,
@@ -282,3 +291,42 @@ class DBUser:
         })
         result = json.loads(dumps(result))
         return result["nonAvailability"][0]["reason"] if result else None
+
+    def getCollisionTravelLocation(self, userId: str, timeline: dict) -> str:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "otherLocations.timeline.begin": {
+                "$lt": timeline["end"]
+            },
+            "otherLocations.timeline.end": {
+                "$gt": timeline["begin"]
+            }
+        }, {
+            "_id": 0,
+            "otherLocations": 1
+        })
+        return json.loads(dumps(result))
+
+    def getCollisionNonAvailability(self, userId: str, timeline: dict) -> str:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "nonAvailability.timeline.begin": {
+                "$lt": timeline["end"]
+            },
+            "nonAvailability.timeline.end": {
+                "$gt": timeline["begin"]
+            }
+        }, {
+            "_id": 0,
+            "nonAvailability": 1
+        })
+        return json.loads(dumps(result))
+
+    def matchesBaseLocation(self, userId: str, locationId: str) -> bool:
+        result = self.__db.find_one({
+            "_id": ObjectId(userId),
+            "baseLocation": ObjectId(locationId)
+        }, {
+            "_id": 1
+        })
+        return True if result else False
