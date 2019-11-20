@@ -32,6 +32,7 @@ from source.user.add_travel import AddTravelResource
 from source.user.add_non_availability import AddNonAvailabilityResource
 from source.milestone.get_all_milestones import GetAllMilestonesResource
 from source.pulse.get_user_pulses import GetUserPulsesResource
+from source.user.get_overlaps_creating_pulse import GetOverlapsCreatingPulseResource
 
 cors = CORS(allow_origins_list=["http://localhost:3100"],
             allow_credentials_all_origins=True,
@@ -71,5 +72,6 @@ api.add_route("/add-travel", AddTravelResource())
 api.add_route("/add-non-availability", AddNonAvailabilityResource())
 api.add_route("/get-all-milestones", GetAllMilestonesResource())
 api.add_route("/get-user-pulses", GetUserPulsesResource())
+api.add_route("/get-overlaps-creating-pulse", GetOverlapsCreatingPulseResource())
 
 log.info("Circuit is up and running..")
