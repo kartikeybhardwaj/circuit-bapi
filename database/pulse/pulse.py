@@ -31,6 +31,27 @@ class DBPulse:
         })
         return json.loads(dumps(result))
 
+    def getPulseById(self, pulseId: str) -> dict:
+        result = self.__db.pulses.find_one({
+            "_id": ObjectId(pulseId),
+            "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "color": 1,
+            "timeline": 1,
+            "assignees": 1,
+            "comments": 1,
+            "pulseMetaId": 1,
+            "fields": 1,
+            "linkedProjectId": 1,
+            "linkedMilestoneId": 1,
+            "meta": 1
+        })
+        return json.loads(dumps(result))
+
     def getPulsesByIds(self, pulseIds: "list of ObjectId") -> dict:
         pulseIds = list(map(ObjectId, pulseIds))
         result = self.__db.pulses.find({

@@ -30,6 +30,25 @@ class DBMilestone:
         })
         return json.loads(dumps(result))
 
+    def getMilestoneById(self, milestoneId: str) -> dict:
+        result = self.__db.milestones.find_one({
+            "_id": ObjectId(milestoneId),
+            "isActive": True
+        }, {
+            "_id": 1,
+            "index": 1,
+            "title": 1,
+            "description": 1,
+            "timeline": 1,
+            "locationId": 1,
+            "pulsesList": 1,
+            "milestoneMetaId": 1,
+            "fields": 1,
+            "linkedProjectId": 1,
+            "meta": 1
+        })
+        return json.loads(dumps(result))
+
     def getMilestonesByIds(self, milestoneIds: "list of str") -> dict:
         milestoneIds = list(map(ObjectId, milestoneIds))
         result = self.__db.milestones.find({
@@ -82,7 +101,7 @@ class DBMilestone:
             "fields": 1
         })["fields"]
 
-    def getActiveMilesonteIdsByIds(self, milestoneIds: "list of str") -> "list of dict":
+    def getActiveMilestoneIdsByIds(self, milestoneIds: "list of str") -> "list of dict":
         milestoneIds = list(map(ObjectId, milestoneIds))
         result = self.__db.milestones.find({
             "_id": {
@@ -135,5 +154,23 @@ class DBMilestone:
         }, {
             "$push": {
                 "pulsesList": ObjectId(pulseId)
+            }
+        }).modified_count == 1
+
+    def updateMilestone(self, milestoneId: str, dataToBeUpdated: dict) -> bool:
+        return self.__db.milestones.update_one({
+            "_id": ObjectId(milestoneId)
+        }, {
+            "$set": {
+                "title": dataToBeUpdated["title"],
+                "description": dataToBeUpdated["description"],
+                "locationId": dataToBeUpdated["locationId"],
+                "timeline": dataToBeUpdated["timeline"],
+                "milestoneMetaId": dataToBeUpdated["milestoneMetaId"],
+                "fields": dataToBeUpdated["fields"],
+                "meta": {
+                    "lastUpdatedBy": dataToBeUpdated["meta"]["lastUpdatedBy"],
+                    "lastUpdatedOn": dataToBeUpdated["meta"]["lastUpdatedOn"]
+                }
             }
         }).modified_count == 1
