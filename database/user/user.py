@@ -183,12 +183,20 @@ class DBUser:
         }) == 1
 
     def hasMilestoneAccess(self, userId: str, projectId: str, milestoneId: str) -> bool:
-        # TODO: please verify this query
         return self.__db.users.count_documents({
             "_id": ObjectId(userId),
             "isActive": True,
             "access.projects.projectId": ObjectId(projectId),
             "access.projects.milestones.milestoneId": ObjectId(milestoneId)
+        }) == 1
+
+    def hasPulseAccess(self, userId: str, projectId: str, milestoneId: str, pulseId: str) -> bool:
+        return self.__db.users.count_documents({
+            "_id": ObjectId(userId),
+            "isActive": True,
+            "access.projects.projectId": ObjectId(projectId),
+            "access.projects.milestones.milestoneId": ObjectId(milestoneId),
+            "access.projects.milestones.pulses": ObjectId(pulseId)
         }) == 1
 
     def insertAccessToMilestone(self, userId: str, projectId: str, milestoneId: str) -> bool:
