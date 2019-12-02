@@ -37,7 +37,7 @@ class GetProjectsResource:
             for milestoneId in project["milestonesList"]:
                 allMilestoneIds.append(milestoneId["$oid"])
         # 02. get only activeMilestoneIds out of allMilestoneIds
-        activeMilestones = dbm.getActiveMilesonteIdsByIds(allMilestoneIds)
+        activeMilestones = dbm.getActiveMilestoneIdsByIds(allMilestoneIds)
         activeMilestoneIds = [ami["_id"]["$oid"] for ami in activeMilestones]
         # 03. remove all inactive milestoneIds
         for project in projects:
