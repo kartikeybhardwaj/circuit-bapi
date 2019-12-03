@@ -58,6 +58,16 @@ class DBRole:
         })
         return json.loads(dumps(result))
 
+    def hasProjectCreationAccess(self, roleId: str) -> bool:
+        result = self.__db.roles.find_one({
+            "_id": ObjectId(roleId),
+            "isActive": True,
+            "canModifyProjects": True
+        }, {
+            "_id": 1
+        })
+        return True if result else False
+
     def hasMilestoneCreationAccess(self, roleId: str) -> bool:
         result = self.__db.roles.find_one({
             "_id": ObjectId(roleId),
