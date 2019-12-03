@@ -192,3 +192,28 @@ class DBProject:
                 "milestonesList": ObjectId(milestoneId)
             }
         }).modified_count == 1
+
+    def updateProject(self, projectId: str, project: dict) -> bool:
+        return self.__db.projects.update_one({
+            "_id": ObjectId(projectId)
+        }, {
+            "$set": {
+                "title": project["title"],
+                "description": project["description"],
+                "visibility": project["visibility"],
+                "projectMetaId": project["projectMetaId"],
+                "fields": project["fields"],
+                "members": project["members"],
+                "meta.lastUpdatedBy": project["meta"]["lastUpdatedBy"],
+                "meta.lastUpdatedOn": project["meta"]["lastUpdatedOn"]
+            }
+        }).modified_count == 1
+
+    def removeMemberFromProject(self, userId: str, projectId: str) -> bool:
+        self.__db.projects.update_one({
+            "_id": ObjectId(projectId)
+        }, {
+            "$pull": {
+                "members": ObjectId(userId)
+            }
+        }).modified_count == 1
