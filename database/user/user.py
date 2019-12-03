@@ -96,6 +96,23 @@ class DBUser:
                     _out.append(pulse["$oid"])
         return _out
 
+    def getAccessibleUserPulsesInProjectId(self, userId: str, projectId: str) -> list:
+        result = self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "isActive": True,
+            "access.projects.projectId": ObjectId(projectId)
+        }, {
+            "_id": 0,
+            "access.projects.$.milestones.pulses": 1
+        })["access"]["projects"][0]["milestones"]
+        result = json.loads(dumps(result))
+        _out = []
+        for milestone in result:
+            if "pulses" in milestone:
+                for pulse in milestone["pulses"]:
+                    _out.append(pulse["$oid"])
+        return _out
+
     def getActiveUserIdsByIds(self, userIds: "list of str") -> "list of dict":
         userIds = list(map(ObjectId, userIds))
         result = self.__db.users.find({
@@ -339,6 +356,17 @@ class DBUser:
         })
         return True if result else False
 
+    def getAccessPulseLength(self, userId: str, projectId: str, milestoneId: str) -> int:
+        return len(self.__db.users.find_one({
+            "_id": ObjectId(userId),
+            "isActive": True,
+            "access.projects.projectId": ObjectId(projectId),
+            "access.projects.milestones.milestoneId": ObjectId(milestoneId)
+        }, {
+            "_id": 0,
+            "access.projects.milestones.$.pulses": 1
+        })["access"]["projects"][0]["milestones"][0]["pulses"])
+
     def removeAccessFromPulse(self, userId: str, projectId: str, milestoneId: str, pulseId: str) -> bool:
         return self.__db.users.update_one({
             "_id": ObjectId(userId),
@@ -351,17 +379,6 @@ class DBUser:
             }, {
                 "j.milestoneId": ObjectId(milestoneId)
         }]).modified_count == 1
-
-    def getAccessPulseLength(self, userId: str, projectId: str, milestoneId: str) -> int:
-        return len(self.__db.users.find_one({
-            "_id": ObjectId(userId),
-            "isActive": True,
-            "access.projects.projectId": ObjectId(projectId),
-            "access.projects.milestones.milestoneId": ObjectId(milestoneId)
-        }, {
-            "_id": 0,
-            "access.projects.milestones.$.pulses": 1
-        })["access"]["projects"][0]["milestones"][0]["pulses"])
 
     def removeAccessFromMilestone(self, userId: str, projectId: str, milestoneId: str) -> bool:
         return self.__db.users.update_one({
@@ -376,3 +393,14 @@ class DBUser:
                 "i.projectId": ObjectId(projectId)
             }
         ]).modified_count == 1
+
+    def removeAccessFromProject(self, userId: str, projectId: str) -> bool:
+        return self.__db.users.update_one({
+            "_id": ObjectId(userId)
+        }, {
+            "$pull": {
+                "access.projects": {
+                    "projectId": ObjectId(projectId)
+                }
+            }
+        }).modified_count == 1
