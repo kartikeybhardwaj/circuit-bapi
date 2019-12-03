@@ -36,6 +36,7 @@ from source.user.get_overlaps_creating_pulse import GetOverlapsCreatingPulseReso
 from source.project.get_project import GetProjectResource
 from source.milestone.get_milestone import GetMilestoneResource
 from source.pulse.get_pulse import GetPulseResource
+from source.project.update_project import UpdateProjectResource
 from source.milestone.update_milestone import UpdateMilestoneResource
 from source.pulse.update_pulse import UpdatePulseResource
 
@@ -81,6 +82,7 @@ api.add_route("/add-non-availability", AddNonAvailabilityResource())
 api.add_route("/get-all-milestones", GetAllMilestonesResource())
 api.add_route("/get-user-pulses", GetUserPulsesResource())
 api.add_route("/get-overlaps-creating-pulse", GetOverlapsCreatingPulseResource())
+api.add_route("/update-project", UpdateProjectResource())
 api.add_route("/update-milestone", UpdateMilestoneResource())
 api.add_route("/update-pulse", UpdatePulseResource())
 
