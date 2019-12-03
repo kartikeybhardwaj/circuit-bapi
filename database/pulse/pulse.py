@@ -157,3 +157,20 @@ class DBPulse:
                 }
             }
         }).modified_count == 1
+
+    def updatePulse(self, pulseId: str, pulse: dict) -> bool:
+        return self.__db.pulses.update_one({
+            "_id": ObjectId(pulseId)
+        }, {
+            "$set": {
+                "title": pulse["title"],
+                "description": pulse["description"],
+                "color": pulse["color"],
+                "assignees": pulse["assignees"],
+                "timeline": pulse["timeline"],
+                "pulseMetaId": pulse["pulseMetaId"],
+                "fields": pulse["fields"],
+                "meta.lastUpdatedBy": pulse["meta"]["lastUpdatedBy"],
+                "meta.lastUpdatedOn": pulse["meta"]["lastUpdatedOn"]
+            }
+        }).modified_count == 1
