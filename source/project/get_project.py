@@ -141,7 +141,7 @@ class GetProjectResource:
         for member in project["members"]:
             member["userId"] = member["userId"]["$oid"]
             member["roleId"] = member["roleId"]["$oid"]
-        project["projectMetaId"] = project["projectMetaId"]["$oid"]
+        project["projectMetaId"] = project["projectMetaId"]["$oid"] if project["projectMetaId"] else None
         if project["meta"]["addedBy"]:
             project["meta"]["addedBy"] = project["meta"]["addedBy"]["$oid"]
         if project["meta"]["addedOn"]:

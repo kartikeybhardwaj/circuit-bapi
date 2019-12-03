@@ -160,7 +160,7 @@ class AddPulseResource:
         dataToBeInserted["timeline"]["begin"] = utils.getDateFromUTCString(dataToBeInserted["timeline"]["begin"])
         dataToBeInserted["timeline"]["end"] = utils.getDateFromUTCString(dataToBeInserted["timeline"]["end"])
         dataToBeInserted["comments"] = []
-        dataToBeInserted["pulseMetaId"] = ObjectId(requestObj["pulseMetaId"])
+        dataToBeInserted["pulseMetaId"] = ObjectId(requestObj["pulseMetaId"]) if requestObj["pulseMetaId"] else None
         dataToBeInserted["fields"] = requestObj["fields"]
         dataToBeInserted["linkedProjectId"] = ObjectId(requestObj["linkedProjectId"])
         dataToBeInserted["linkedMilestoneId"] = ObjectId(requestObj["linkedMilestoneId"])

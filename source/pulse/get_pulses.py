@@ -127,7 +127,7 @@ class GetPulsesResource:
     def convertMongoDBObjectsToObjects(self, pulses: "list of dict") -> "list of dict":
         for pulse in pulses:
             pulse["_id"] = pulse["_id"]["$oid"]
-            pulse["pulseMetaId"] = pulse["pulseMetaId"]["$oid"]
+            pulse["pulseMetaId"] = pulse["pulseMetaId"]["$oid"] if pulse["pulseMetaId"] else None
             pulse["timeline"]["begin"] = pulse["timeline"]["begin"]["$date"]
             pulse["timeline"]["end"] = pulse["timeline"]["end"]["$date"]
             pulse["linkedProjectId"] = pulse["linkedProjectId"]["$oid"]

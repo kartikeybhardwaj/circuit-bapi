@@ -106,7 +106,7 @@ class AddProjectResource:
         dataToBeInserted["isActive"] = True
         dataToBeInserted["description"] = requestObj["description"]
         dataToBeInserted["visibility"] = requestObj["visibility"]
-        dataToBeInserted["projectMetaId"] = ObjectId(requestObj["projectMetaId"])
+        dataToBeInserted["projectMetaId"] = ObjectId(requestObj["projectMetaId"]) if requestObj["projectMetaId"] else None
         dataToBeInserted["fields"] = requestObj["fields"]
         dataToBeInserted["members"] = requestObj["members"]
         dataToBeInserted["milestonesList"] = []
