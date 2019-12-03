@@ -174,3 +174,12 @@ class DBPulse:
                 "meta.lastUpdatedOn": pulse["meta"]["lastUpdatedOn"]
             }
         }).modified_count == 1
+
+    def removeAssigneeFromPulse(self, userId: str, pulseId: str) -> bool:
+        self.__db.pulses.update_one({
+            "_id": ObjectId(pulseId)
+        }, {
+            "$pull": {
+                "assignees": ObjectId(userId)
+            }
+        }).modified_count == 1
