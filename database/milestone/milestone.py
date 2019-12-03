@@ -168,9 +168,7 @@ class DBMilestone:
                 "timeline": dataToBeUpdated["timeline"],
                 "milestoneMetaId": dataToBeUpdated["milestoneMetaId"],
                 "fields": dataToBeUpdated["fields"],
-                "meta": {
-                    "lastUpdatedBy": dataToBeUpdated["meta"]["lastUpdatedBy"],
-                    "lastUpdatedOn": dataToBeUpdated["meta"]["lastUpdatedOn"]
-                }
+                "meta.lastUpdatedBy": dataToBeUpdated["meta"]["lastUpdatedBy"],
+                "meta.lastUpdatedOn": dataToBeUpdated["meta"]["lastUpdatedOn"]
             }
         }).modified_count == 1

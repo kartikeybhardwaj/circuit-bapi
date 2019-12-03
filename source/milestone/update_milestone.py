@@ -165,7 +165,7 @@ class UpdateMilestoneResource:
         dataToBeUpdated["timeline"] = requestObj["timeline"]
         dataToBeUpdated["timeline"]["begin"] = utils.getDateFromUTCString(dataToBeUpdated["timeline"]["begin"])
         dataToBeUpdated["timeline"]["end"] = utils.getDateFromUTCString(dataToBeUpdated["timeline"]["end"])
-        dataToBeUpdated["milestoneMetaId"] = ObjectId(requestObj["milestoneMetaId"])
+        dataToBeUpdated["milestoneMetaId"] = ObjectId(requestObj["milestoneMetaId"]) if requestObj["milestoneMetaId"] else None
         dataToBeUpdated["fields"] = requestObj["fields"]
         dataToBeUpdated["meta"] = {
             "lastUpdatedBy": ObjectId(userId),
