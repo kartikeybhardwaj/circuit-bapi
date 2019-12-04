@@ -3,12 +3,13 @@ from bson.json_util import dumps
 from bson.objectid import ObjectId
 import json
 import datetime
+from constants.dbpath import db_path
 
 class DBRole:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__client = MongoClient('mongodb://kart:oon@127.0.0.1:27017/circuit')
+        self.__client = MongoClient(db_path)
         self.__db = self.__client.circuit
 
     def getOwnerRoleId(self) -> str:
