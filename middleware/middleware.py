@@ -5,6 +5,12 @@ thisFilename = __file__.split("/")[-1]
 import json
 from constants.secret import FapiToBapiSecret
 
+ignoreProcessRequestForPath = [
+    "/creator",
+    "/destroyer",
+    "/add-superuser"
+]
+
 class Middleware:
 
     def __init__(self, *args, **kwargs):
@@ -27,22 +33,23 @@ class Middleware:
         if req.method == "POST":
             log.info((thisFilename, inspect.currentframe().f_code.co_name, req.path, "media", str(req.media)))
         if req.method != "OPTIONS":
-            if "kartoon-fapi-incoming" not in req.params:
-                resp.media = {
-                    "responseId": 103,
-                    "message": "Invalid request"
-                }
-                # exit request
-                resp.complete = True
-            else:
-                req.params["kartoon-fapi-incoming"] = json.loads(req.params["kartoon-fapi-incoming"])
-                if req.params["kartoon-fapi-incoming"]["secretKey"] != FapiToBapiSecret:
+            if req.path not in ignoreProcessRequestForPath:
+                if "kartoon-fapi-incoming" not in req.params:
                     resp.media = {
-                        "responseId": 109,
-                        "message": "Unauthorized access"
+                        "responseId": 103,
+                        "message": "Invalid request"
                     }
                     # exit request
                     resp.complete = True
+                else:
+                    req.params["kartoon-fapi-incoming"] = json.loads(req.params["kartoon-fapi-incoming"])
+                    if req.params["kartoon-fapi-incoming"]["secretKey"] != FapiToBapiSecret:
+                        resp.media = {
+                            "responseId": 109,
+                            "message": "Unauthorized access"
+                        }
+                        # exit request
+                        resp.complete = True
 
     def process_response(self, req, resp, resource, req_succeeded):
         """Post-processing of the response (after routing).
