@@ -1,1 +1,1 @@
-db_path = "mongodb://kart:oon@localhost:27017/circuit"
+db_path = "mongodb://user:p4ss@db:27017/circuit"

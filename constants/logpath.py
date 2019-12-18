@@ -1,1 +1,1 @@
-log_path = "/Users/kartikeybhardwaj/Desktop/circuit-logs/circuit-bapi.log"
+log_path = "/app/circuit-bapi.log"

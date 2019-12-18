@@ -2,6 +2,5 @@
   "files.exclude": {
     "**/__pycache__": true,
     "env": true
-  },
-  "python.pythonPath": "/Users/kartikeybhardwaj/Desktop/circuit-bapi/env/bin/python3"
+  }
 }
