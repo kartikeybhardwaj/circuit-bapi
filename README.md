@@ -1,7 +1,7 @@
 # Circuit Backend API
 
 ### python3 -m venv env
-### source enc/bin/activate
+### source env/bin/activate
 ### deactivate
 
 ### pip3 install falcon
